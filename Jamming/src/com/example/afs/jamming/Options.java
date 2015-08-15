@@ -9,41 +9,33 @@
 
 package com.example.afs.jamming;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-
 import com.example.afs.jamming.Converter.TickOrigin;
 import com.example.afs.jamming.ItemFinder.Background;
 
 public class Options {
-  public static final int BACKGROUND_THRESHOLD = Color.getColor(64, 64, 64);
   public static final int DRUM_CHANNEL = 9;
-  public static final int LOOP_DELAY_MS = 500;
-  public static final int MINIMUM_SIZE = 50;
   public static final int STANDARD_DRUM_KIT = 1;
-  private static final int DEFAULT_VELOCITY = 127;
 
   private Background backgroundCondition = Background.LESS_THAN;
-  private int backgroundThreshold = BACKGROUND_THRESHOLD;
-  private int channel = DRUM_CHANNEL;
+  private int backgroundThreshold = Color.getColor(64, 64, 64);
   private ColorMap colorMap = ColorMaps.getSingleton().getDefault();
-  private List<String> fileNames = new LinkedList<>();
-  private int fuzziness = 20;
-  private boolean isAudio = true;
-  private boolean isImage = true;
-  private boolean isProgramLoop = false;
+  private String imageBaseFilename = "Jamming";
+  private int imageBrightness = 30;
+  private String imageCaptureProgram = "raspistill";
+  private int imageHeight = 768;
+  private int imageRotation = 90;
+  private int imageWidth = 1024;
+  private boolean isDisplayImage = true;
+  private boolean isMidiProgramLoop = false;
+  private boolean isPlayAudio = true;
   private boolean isVerbose = false;
-  private int loopDelay = LOOP_DELAY_MS;
-  private int minimumSize = MINIMUM_SIZE;
-  private int program = STANDARD_DRUM_KIT;
-  private float tempoFactor = 1.0f;
-  private TickOrigin tickOrigin = TickOrigin.MIDPOINT;
-  private int velocity = DEFAULT_VELOCITY;
-
-  public void addFile(String fileName) {
-    fileNames.add(fileName);
-  }
+  private int midiChannel = DRUM_CHANNEL;
+  private int midiProgram = STANDARD_DRUM_KIT;
+  private float midiTempoFactor = 1.0f;
+  private TickOrigin midiTickOrigin = TickOrigin.MIDPOINT;
+  private int midiVelocity = 127;
+  private int objectFuzziness = 20;
+  private int objectMinimumSize = 50;
 
   public Background getBackgroundCondition() {
     return backgroundCondition;
@@ -53,64 +45,84 @@ public class Options {
     return backgroundThreshold;
   }
 
-  public int getChannel() {
-    return channel;
-  }
-
   public ColorMap getColorMap() {
     return colorMap;
   }
 
-  public List<String> getFileNames() {
-    return Collections.unmodifiableList(fileNames);
+  public String getImageBaseFilename() {
+    return imageBaseFilename;
   }
 
-  public int getFuzziness() {
-    return fuzziness;
+  public int getImageBrightness() {
+    return imageBrightness;
   }
 
-  public int getLoopDelay() {
-    return loopDelay;
+  public String getImageCaptureProgram() {
+    return imageCaptureProgram;
   }
 
-  public int getMinimumSize() {
-    return minimumSize;
+  public int getImageHeight() {
+    return imageHeight;
   }
 
-  public int getProgram() {
-    return program;
+  public String getImageLatestFilename() {
+    return imageBaseFilename + ".jpg";
   }
 
-  public float getTempoFactor() {
-    return tempoFactor;
+  public String getImageOutputFilename() {
+    return imageBaseFilename + ".tmp";
   }
 
-  public TickOrigin getTickOrigin() {
-    return tickOrigin;
+  public int getImageRotation() {
+    return imageRotation;
   }
 
-  public int getVelocity() {
-    return velocity;
+  public int getImageWidth() {
+    return imageWidth;
   }
 
-  public boolean isAudio() {
-    return isAudio;
+  public int getMidiChannel() {
+    return midiChannel;
   }
 
-  public boolean isImage() {
-    return isImage;
+  public int getMidiProgram() {
+    return midiProgram;
   }
 
-  public boolean isProgramLoop() {
-    return isProgramLoop;
+  public float getMidiTempoFactor() {
+    return midiTempoFactor;
+  }
+
+  public TickOrigin getMidiTickOrigin() {
+    return midiTickOrigin;
+  }
+
+  public int getMidiVelocity() {
+    return midiVelocity;
+  }
+
+  public int getObjectFuzziness() {
+    return objectFuzziness;
+  }
+
+  public int getObjectMinimumSize() {
+    return objectMinimumSize;
+  }
+
+  public boolean isDisplayImage() {
+    return isDisplayImage;
+  }
+
+  public boolean isMidiProgramLoop() {
+    return isMidiProgramLoop;
+  }
+
+  public boolean isPlayAudio() {
+    return isPlayAudio;
   }
 
   public boolean isVerbose() {
     return isVerbose;
-  }
-
-  public void setAudio(boolean isAudio) {
-    this.isAudio = isAudio;
   }
 
   public void setBackgroundCondition(Background backgroundCondition) {
@@ -121,48 +133,72 @@ public class Options {
     this.backgroundThreshold = backgroundRgb;
   }
 
-  public void setChannel(int channel) {
-    this.channel = channel;
-  }
-
   public void setColorMap(ColorMap colorMap) {
     this.colorMap = colorMap;
   }
 
-  public void setFuzziness(int fuzziness) {
-    this.fuzziness = fuzziness;
+  public void setDisplayImage(boolean isImage) {
+    this.isDisplayImage = isImage;
   }
 
-  public void setImage(boolean isImage) {
-    this.isImage = isImage;
+  public void setImageBaseFilename(String imageBaseFilename) {
+    this.imageBaseFilename = imageBaseFilename;
   }
 
-  public void setLoopDelay(int loopDelay) {
-    this.loopDelay = loopDelay;
+  public void setImageBrightness(int imageBrightness) {
+    this.imageBrightness = imageBrightness;
   }
 
-  public void setMinimumSize(int minimumSize) {
-    this.minimumSize = minimumSize;
+  public void setImageCaptureProgram(String imageCaptureProgram) {
+    this.imageCaptureProgram = imageCaptureProgram;
   }
 
-  public void setProgram(int program) {
-    this.program = program;
+  public void setImageHeight(int imageHeight) {
+    this.imageHeight = imageHeight;
   }
 
-  public void setProgramLoop(boolean isProgramLoop) {
-    this.isProgramLoop = isProgramLoop;
+  public void setImageRotation(int imageRotation) {
+    this.imageRotation = imageRotation;
   }
 
-  public void setTempoFactor(float tempoFactor) {
-    this.tempoFactor = tempoFactor;
+  public void setImageWidth(int imageWidth) {
+    this.imageWidth = imageWidth;
   }
 
-  public void setTickOrigin(TickOrigin tickOrigin) {
-    this.tickOrigin = tickOrigin;
+  public void setMidiChannel(int channel) {
+    this.midiChannel = channel;
   }
 
-  public void setVelocity(int velocity) {
-    this.velocity = velocity;
+  public void setMidiProgram(int program) {
+    this.midiProgram = program;
+  }
+
+  public void setMidiProgramLoop(boolean isMidiProgramLoop) {
+    this.isMidiProgramLoop = isMidiProgramLoop;
+  }
+
+  public void setMidiTempoFactor(float tempoFactor) {
+    this.midiTempoFactor = tempoFactor;
+  }
+
+  public void setMidiTickOrigin(TickOrigin tickOrigin) {
+    this.midiTickOrigin = tickOrigin;
+  }
+
+  public void setMidiVelocity(int velocity) {
+    this.midiVelocity = velocity;
+  }
+
+  public void setObjectFuzziness(int fuzziness) {
+    this.objectFuzziness = fuzziness;
+  }
+
+  public void setObjectMinimumSize(int minimumSize) {
+    this.objectMinimumSize = minimumSize;
+  }
+
+  public void setPlayAudio(boolean isAudio) {
+    this.isPlayAudio = isAudio;
   }
 
   public void setVerbose(boolean isVerbose) {

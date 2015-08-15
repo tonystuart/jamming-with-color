@@ -36,41 +36,41 @@ public class Jamming {
 
   private ImageViewer afterView;
   private ImageViewer beforeView;
-  private FileManager fileManager;
   private Options options;
   private Player player;
   private int program;
+  private RaspistillWatcher raspistillWatcher;
 
   public Jamming(Options options) {
     this.options = options;
-    if (options.isImage()) {
+    if (options.isDisplayImage()) {
       beforeView = new ImageViewer();
       afterView = new ImageViewer();
     }
-    fileManager = new FileManager(options.getLoopDelay());
-    program = options.getProgram();
+    program = options.getMidiProgram();
+    raspistillWatcher = new RaspistillWatcher(options);
   }
 
   public void jam() {
     int loopCount = 0;
     List<Block> oldBlocks = Collections.emptyList();
-    do {
-      for (String fileName : options.getFileNames()) {
-        BufferedImage image = getImage(fileName, loopCount);
-        List<Block> newBlocks = getBlocks(image, loopCount);
-        if (options.getFuzziness() == 0 || isDifferent(oldBlocks, newBlocks, options.getFuzziness())) {
-          playBlocks(image, newBlocks);
-          oldBlocks = newBlocks;
-        }
-        loopCount++;
+    for (;;) {
+      String filename = raspistillWatcher.takePhoto();
+      BufferedImage image = getImage(filename, loopCount);
+      List<Block> newBlocks = getBlocks(image, loopCount);
+      if (options.getObjectFuzziness() == 0 || isDifferent(oldBlocks, newBlocks, options.getObjectFuzziness())) {
+        playBlocks(image, newBlocks);
+        oldBlocks = newBlocks;
+      } else {
+        playBlocks(image, oldBlocks);
       }
-    } while (options.getLoopDelay() != 0);
-    player.terminate();
+      loopCount++;
+    }
   }
 
   private Block convertItemToBlock(ImageProcessor imageProcessor, Item item) {
     int averageRgb = imageProcessor.getAverageRgb(item);
-    if (options.isImage()) {
+    if (options.isDisplayImage()) {
       imageProcessor.setAverageRgb(item, averageRgb);
     }
     Entry<? extends Color, Key> entry = options.getColorMap().findClosestEntry(averageRgb);
@@ -79,8 +79,8 @@ public class Jamming {
   }
 
   private void despeckleItems(ImageProcessor imageProcessor, List<Item> items) {
-    if (options.getMinimumSize() > 0) {
-      int despeckleCount = imageProcessor.despeckle(options.getMinimumSize());
+    if (options.getObjectMinimumSize() > 0) {
+      int despeckleCount = imageProcessor.despeckle(options.getObjectMinimumSize());
       if (options.isVerbose()) {
         System.out.println("Despeckling removed " + despeckleCount + " speckles");
         displayInfo("After despeckling", items);
@@ -110,7 +110,7 @@ public class Jamming {
   }
 
   private List<Block> getBlocks(BufferedImage image, int loopCount) {
-    ImageProcessor imageProcessor = new ImageProcessor(image, Background.LESS_THAN, options.getBackgroundThreshold(), options.getMinimumSize());
+    ImageProcessor imageProcessor = new ImageProcessor(image, Background.LESS_THAN, options.getBackgroundThreshold(), options.getObjectMinimumSize());
     List<Item> items = imageProcessor.getItems();
     if (options.isVerbose()) {
       displayInfo("Original image", items);
@@ -121,7 +121,7 @@ public class Jamming {
       Block block = convertItemToBlock(imageProcessor, item);
       blocks.add(block);
     }
-    if (options.isImage()) {
+    if (options.isDisplayImage()) {
       afterView.display(image, "After " + loopCount);
     }
     displayBlockInfo(blocks);
@@ -130,16 +130,16 @@ public class Jamming {
 
   private BufferedImage getImage(String fileName, int loopCount) {
     if (options.isVerbose()) {
-      System.out.println("Waiting for updated image");
+      System.out.println("Reading updated image");
     }
-    File file = fileManager.getFile(fileName);
+    File file = new File(fileName);
     BufferedImage image;
     try {
       image = ImageIO.read(file);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-    if (options.isImage()) {
+    if (options.isDisplayImage()) {
       beforeView.display(image, "Before " + loopCount);
     }
     return image;
@@ -147,7 +147,7 @@ public class Jamming {
 
   private Player getPlayer() {
     if (player == null) {
-      player = new Player(options.getTempoFactor());
+      player = new Player(options.getMidiTempoFactor());
     }
     return player;
   }
@@ -175,19 +175,17 @@ public class Jamming {
   }
 
   private void playBlocks(BufferedImage image, List<Block> blocks) {
-    if (options.isAudio()) {
-      if (blocks.size() == 0) {
-        getPlayer().stop();
-      } else {
-        Converter converter = new Converter(options.getTickOrigin(), options.getVelocity());
-        Sequence sequence = converter.convert(blocks, image.getWidth(), 250, options.getChannel(), program);
-        if (options.isProgramLoop()) {
+    if (options.isPlayAudio()) {
+      if (blocks.size() > 0) {
+        Converter converter = new Converter(options.getMidiTickOrigin(), options.getMidiVelocity());
+        Sequence sequence = converter.convert(blocks, image.getWidth(), 250, options.getMidiChannel(), program);
+        if (options.isMidiProgramLoop()) {
           program = (program + 1) % 127;
           if (options.isVerbose()) {
             System.out.println("Looping to program " + program);
           }
         }
-        getPlayer().loop(sequence);
+        getPlayer().play(sequence);
       }
     }
   }

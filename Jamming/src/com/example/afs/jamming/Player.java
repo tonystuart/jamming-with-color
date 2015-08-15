@@ -9,11 +9,13 @@
 
 package com.example.afs.jamming;
 
+import java.util.concurrent.LinkedBlockingQueue;
+
 import javax.sound.midi.InvalidMidiDataException;
-import javax.sound.midi.MidiMessage;
+import javax.sound.midi.MetaEventListener;
+import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
-import javax.sound.midi.Receiver;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.Sequencer;
 
@@ -24,54 +26,20 @@ import javax.sound.midi.Sequencer;
 
 public class Player {
 
-  private final class SequenceQueueReceiver implements Receiver {
-    private long lastTick;
-    private Sequence nextSequence;
-
-    @Override
-    public void close() {
-    }
-
-    @Override
-    public void send(MidiMessage message, long timeStamp) {
-      long tick = sequencer.getTickPosition();
-      long previousTick = lastTick;
-      lastTick = tick; // must save before setSequence calls us right back
-      if (tick < previousTick) {
-        if (isTerminate) {
-          // The Java Sound Event Dispatcher thread is very hard terminate
-          //sequencer.setLoopCount(0);
-          //sequencer.stop(); // this hangs
-          //sequencer.close();
-          System.exit(0);
-        } else {
-          if (nextSequence != null) {
-            System.err.println("Selecting new sequence, tick=" + tick + ", previousTick=" + previousTick);
-            try {
-              sequencer.setSequence(nextSequence);
-            } catch (InvalidMidiDataException e) {
-              throw new RuntimeException(e);
-            }
-            nextSequence = null;
-          }
-        }
-      }
-    }
-
-    public void setNextSequence(Sequence nextSequence) {
-      this.nextSequence = nextSequence;
-    }
-  }
-
-  private boolean isTerminate;
-  private SequenceQueueReceiver receiver;
+  private LinkedBlockingQueue<MetaMessage> queue = new LinkedBlockingQueue<MetaMessage>();
   private Sequencer sequencer;
 
   public Player(float tempoFactor) {
     try {
       sequencer = MidiSystem.getSequencer();
-      receiver = new SequenceQueueReceiver();
-      sequencer.getTransmitter().setReceiver(receiver);
+      MetaEventListener listener = new MetaEventListener() {
+        public void meta(MetaMessage event) {
+          if (event.getType() == 47) {
+            queue.add(event);
+          }
+        }
+      };
+      sequencer.addMetaEventListener(listener);
       sequencer.open();
       sequencer.setTempoFactor(tempoFactor);
     } catch (MidiUnavailableException e) {
@@ -79,26 +47,16 @@ public class Player {
     }
   }
 
-  public void loop(Sequence sequence) {
+  public void play(Sequence sequence) {
     try {
-      if (sequencer.isRunning()) {
-        receiver.setNextSequence(sequence);
-      } else {
-        sequencer.setSequence(sequence);
-        sequencer.setLoopCount(Sequencer.LOOP_CONTINUOUSLY);
-        sequencer.start();
-      }
+      sequencer.setSequence(sequence);
+      sequencer.start();
+      queue.take();
     } catch (InvalidMidiDataException e) {
       throw new RuntimeException(e);
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
     }
-  }
-
-  public void stop() {
-    sequencer.setLoopCount(0);
-  }
-
-  public void terminate() {
-    isTerminate = true;
   }
 
 }
