@@ -9,7 +9,9 @@
 
 package com.example.afs.jamming;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -104,7 +106,9 @@ import java.util.List;
 public class Raspistill {
 
   public static class RaspistillBuilder {
+
     private List<String> command = new LinkedList<String>();
+    private boolean isVerbose;
 
     public RaspistillBuilder(String imageCaptureProgram) {
       command.add(imageCaptureProgram);
@@ -112,11 +116,15 @@ public class Raspistill {
 
     public Raspistill build() {
       try {
-        command.add("--timeout 0"); // run until terminated
-        command.add("--keypress");
-        command.add("--nopreview");
+        setTimeout(0); // run until terminated
+        setKeypress();
+        setPreview();
         ProcessBuilder processBuilder = new ProcessBuilder(command);
+        processBuilder.redirectErrorStream();
         Process process = processBuilder.start();
+        if (isVerbose) {
+          new OutputLogger(process).start();
+        }
         Raspistill raspistill = new Raspistill(process);
         return raspistill;
       } catch (IOException e) {
@@ -125,33 +133,81 @@ public class Raspistill {
     }
 
     public RaspistillBuilder setBrightness(int brightness) {
-      command.add("--brightness " + brightness);
+      command.add("--brightness");
+      command.add(Integer.toString(brightness));
       return this;
     }
 
     public RaspistillBuilder setHeight(int height) {
-      command.add("--height " + height);
+      command.add("--height");
+      command.add(Integer.toString(height));
+      return this;
+    }
+
+    public RaspistillBuilder setKeypress() {
+      command.add("--keypress");
       return this;
     }
 
     public RaspistillBuilder setLatestFilename(String latestFilename) {
-      command.add("--latest " + latestFilename);
+      command.add("--latest");
+      command.add(latestFilename);
       return this;
     }
 
     public RaspistillBuilder setOutputFilename(String outputFilename) {
-      command.add("--output " + outputFilename);
+      command.add("--output");
+      command.add(outputFilename);
+      return this;
+    }
+
+    public RaspistillBuilder setPreview() {
+      command.add("--nopreview");
       return this;
     }
 
     public RaspistillBuilder setRotation(int rotation) {
-      command.add("--rotation " + rotation);
+      command.add("--rotation");
+      command.add(Integer.toString(rotation));
+      return this;
+    }
+
+    public RaspistillBuilder setTimeout(int timeout) {
+      command.add("--timeout");
+      command.add(Integer.toString(timeout));
+      return this;
+    }
+
+    public RaspistillBuilder setVerbose(boolean isVerbose) {
+      this.isVerbose = isVerbose;
       return this;
     }
 
     public RaspistillBuilder setWidth(int width) {
-      command.add("--width " + width);
+      command.add("--width");
+      command.add(Integer.toString(width));
       return this;
+    }
+  }
+
+  private static class OutputLogger extends Thread {
+    private Process process;
+
+    public OutputLogger(Process process) {
+      this.process = process;
+    }
+
+    @Override
+    public void run() {
+      try {
+        String line;
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        while ((line = bufferedReader.readLine()) != null) {
+          System.err.println(line);
+        }
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
     }
   }
 
@@ -166,6 +222,9 @@ public class Raspistill {
       process.getOutputStream().write("\n".getBytes());
       process.getOutputStream().flush();
     } catch (IOException e) {
+      if (!process.isAlive()) {
+        throw new IllegalStateException("The image capture program terminated with a status of " + process.exitValue());
+      }
       throw new RuntimeException(e);
     }
   }
