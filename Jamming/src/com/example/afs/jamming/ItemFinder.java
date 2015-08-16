@@ -11,6 +11,7 @@ package com.example.afs.jamming;
 
 import java.awt.image.BufferedImage;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -25,7 +26,7 @@ public class ItemFinder {
     DROPOUT, INITIAL, ITEM
   }
 
-  private Set<Item> currentItems = new HashSet<>();
+  private Set<Item> currentItems = new LinkedHashSet<>(); // Use LinkedHashSet to ensure consistent ordering
   private List<Item> items = new LinkedList<>();
   private Set<Item> marks = new HashSet<>();
 
