@@ -9,7 +9,7 @@
 
 package com.example.afs.jamming;
 
-public class ColorPalette {
+public class RgbColorPalette {
 
   // http://en.wikipedia.org/wiki/Web_colors
   public static final Color aqua = new Color("Aqua", 0x00FFFF);

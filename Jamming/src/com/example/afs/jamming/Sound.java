@@ -9,22 +9,24 @@
 
 package com.example.afs.jamming;
 
-public class Key {
+public class Sound implements Composable {
 
   private String name;
   private int value;
 
-  public Key(String name, int value) {
+  public Sound(String name, int value) {
     this.name = name;
     this.value = value;
   }
 
-  public String getName() {
-    return name;
+  @Override
+  public void addToTrack(TrackBuilder trackBuilder, long tick, int channel, int velocity, int duration) {
+    trackBuilder.addNote(tick, channel, value, velocity, duration);
   }
 
-  public int getValue() {
-    return value;
+  @Override
+  public String getName() {
+    return name;
   }
 
   @Override
