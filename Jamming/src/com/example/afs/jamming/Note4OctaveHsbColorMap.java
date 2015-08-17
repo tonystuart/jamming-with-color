@@ -14,19 +14,14 @@ public class Note4OctaveHsbColorMap extends HsbColorMap {
   private static final int FIRST = 36;
   private static final int LAST = 84;
 
-  private static final String[] names = new String[] {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
-
   public Note4OctaveHsbColorMap() {
     int noteCount = LAST - FIRST;
     int colorRange = 100 / noteCount;
     int hue = 0;
     for (int i = FIRST; i < LAST; i++) {
       HsbColor color = new HsbColor(hue, 100, 100);
-      int index = i % names.length;
-      int octave = (i / names.length) - 1;
-      String name = names[index] + octave;
-      Key key = new Key(name, i);
-      add(color, key);
+      Note Note = new Note(i);
+      add(color, Note);
       hue += colorRange;
     }
   }

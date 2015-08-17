@@ -15,21 +15,21 @@ import java.util.TreeMap;
 
 public abstract class HsbColorMap extends BaseColorMap {
 
-  private TreeMap<HsbColor, Key> colorMap = new TreeMap<>(new Comparator<HsbColor>() {
+  private TreeMap<HsbColor, Composable> colorMap = new TreeMap<>(new Comparator<HsbColor>() {
     @Override
     public int compare(HsbColor o1, HsbColor o2) {
       return (int) (o1.getHue() - o2.getHue());
     }
   });
 
-  public void add(HsbColor color, Key key) {
-    colorMap.put(color, key);
+  public void add(HsbColor color, Composable composable) {
+    colorMap.put(color, composable);
   }
 
   @Override
-  public Entry<? extends Color, Key> findClosestEntry(int rgb) {
+  public Entry<? extends Color, Composable> findClosestEntry(int rgb) {
     HsbColor color = new HsbColor(rgb);
-    Entry<HsbColor, Key> closestEntry = colorMap.ceilingEntry(color);
+    Entry<HsbColor, Composable> closestEntry = colorMap.ceilingEntry(color);
     if (closestEntry == null) {
       closestEntry = colorMap.firstEntry();
     }

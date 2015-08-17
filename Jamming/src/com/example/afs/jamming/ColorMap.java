@@ -13,9 +13,7 @@ import java.util.Map.Entry;
 
 public interface ColorMap {
 
-  Entry<? extends Color, Key> findClosestEntry(int rgb);
-
-  int findKey(int rgb);
+  Entry<? extends Color, ? extends Composable> findClosestEntry(int colorValue);
 
   String getName();
 

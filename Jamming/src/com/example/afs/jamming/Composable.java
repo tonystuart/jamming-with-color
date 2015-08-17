@@ -9,15 +9,10 @@
 
 package com.example.afs.jamming;
 
-public abstract class BaseColorMap implements ColorMap {
+public interface Composable {
 
-  @Override
-  public String getName() {
-    return getClass().getSimpleName();
-  }
+  void addToTrack(TrackBuilder trackBuilder, long tick, int channel, int velocity, int duration);
 
-  public String toString() {
-    return getName();
-  }
+  String getName();
 
 }

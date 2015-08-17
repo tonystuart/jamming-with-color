@@ -47,9 +47,11 @@ public class Player {
     }
   }
 
-  public void play(Sequence sequence) {
+  public void play(Scene scene) {
     try {
+      Sequence sequence = scene.getSequence();
       sequencer.setSequence(sequence);
+      sequencer.setTickPosition(0);
       sequencer.start();
       queue.take();
     } catch (InvalidMidiDataException e) {

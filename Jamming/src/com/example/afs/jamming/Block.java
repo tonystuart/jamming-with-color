@@ -12,13 +12,13 @@ package com.example.afs.jamming;
 public class Block {
   private int averageRgb;
   private Color color;
+  private Composable composable;
   private Item item;
-  private Key key;
 
-  public Block(Item item, Color color, Key key, int averageRgb) {
+  public Block(Item item, Color color, Composable composable, int averageRgb) {
     this.item = item;
     this.color = color;
-    this.key = key;
+    this.composable = composable;
     this.averageRgb = averageRgb;
   }
 
@@ -34,16 +34,16 @@ public class Block {
     return color;
   }
 
+  public Composable getComposable() {
+    return composable;
+  }
+
   public Item getItem() {
     return item;
   }
 
-  public Key getKey() {
-    return key;
-  }
-
   public String toString() {
-    return item + ", average=" + averageRgb + ", distance=" + Color.getDistance(averageRgb, color) + ", color=" + color + ", key=" + key;
+    return item + ", average=" + averageRgb + ", distance=" + Color.getDistance(averageRgb, color) + ", color=" + color + ", composable=" + composable;
   }
 
   private boolean fuzzyEquals(int thisInt, int thatInt, int minimumSize) {

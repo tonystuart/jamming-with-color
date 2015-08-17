@@ -9,27 +9,19 @@
 
 package com.example.afs.jamming;
 
-public class Key {
+public class Note extends Sound {
 
-  private String name;
-  private int value;
+  private static final String[] NAMES = new String[] {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
 
-  public Key(String name, int value) {
-    this.name = name;
-    this.value = value;
-  }
-
-  public String getName() {
+  public static String getNoteName(int noteValue) {
+    int nameIndex = noteValue % NAMES.length;
+    int octave = (noteValue / NAMES.length) - 1;
+    String name = NAMES[nameIndex] + octave;
     return name;
   }
 
-  public int getValue() {
-    return value;
-  }
-
-  @Override
-  public String toString() {
-    return name + " (" + value + ")";
+  public Note(int value) {
+    super(getNoteName(value), value);
   }
 
 }
