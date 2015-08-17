@@ -24,6 +24,7 @@ public final class ColorMaps {
 
   public ColorMaps() {
     // http://www.javaworld.com/article/2077477/learn-java/java-tip-113--identify-subclasses-at-runtime.html
+    register(new ChordHsbColorMap());
     register(new DrumHsbColorMap());
     register(new DrumRgbColorMap());
     register(new Note1OctaveLowHsbColorMap());
