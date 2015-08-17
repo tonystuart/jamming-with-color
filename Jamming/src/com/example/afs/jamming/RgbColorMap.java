@@ -15,20 +15,20 @@ import java.util.Map.Entry;
 
 public abstract class RgbColorMap extends BaseColorMap {
 
-  private Map<Color, Key> colorMap = new HashMap<>();
+  private Map<Color, Composable> colorMap = new HashMap<>();
 
-  public void add(Color color, Key key) {
-    colorMap.put(color, key);
+  public void add(Color color, Composable composable) {
+    colorMap.put(color, composable);
   }
 
   @Override
-  public Entry<? extends Color, Key> findClosestEntry(int rgb) {
+  public Entry<? extends Color, Composable> findClosestEntry(int rgb) {
     int r1 = Color.getRed(rgb);
     int g1 = Color.getGreen(rgb);
     int b1 = Color.getBlue(rgb);
     int closestDistance = 0;
-    Entry<Color, Key> closestEntry = null;
-    for (Entry<Color, Key> mapEntry : colorMap.entrySet()) {
+    Entry<Color, Composable> closestEntry = null;
+    for (Entry<Color, Composable> mapEntry : colorMap.entrySet()) {
       Color mapColor = mapEntry.getKey();
       int r2 = mapColor.getRed();
       int g2 = mapColor.getGreen();

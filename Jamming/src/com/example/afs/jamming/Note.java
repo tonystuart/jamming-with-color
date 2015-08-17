@@ -9,15 +9,19 @@
 
 package com.example.afs.jamming;
 
-public abstract class BaseColorMap implements ColorMap {
+public class Note extends Sound {
 
-  @Override
-  public String getName() {
-    return getClass().getSimpleName();
+  private static final String[] NAMES = new String[] {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
+
+  public static String getNoteName(int noteValue) {
+    int nameIndex = noteValue % NAMES.length;
+    int octave = (noteValue / NAMES.length) - 1;
+    String name = NAMES[nameIndex] + octave;
+    return name;
   }
 
-  public String toString() {
-    return getName();
+  public Note(int value) {
+    super(getNoteName(value), value);
   }
 
 }

@@ -9,15 +9,10 @@
 
 package com.example.afs.jamming;
 
-public abstract class BaseColorMap implements ColorMap {
+public class Drum extends Sound {
 
-  @Override
-  public String getName() {
-    return getClass().getSimpleName();
-  }
-
-  public String toString() {
-    return getName();
+  public Drum(String name, int value) {
+    super(name, value);
   }
 
 }
