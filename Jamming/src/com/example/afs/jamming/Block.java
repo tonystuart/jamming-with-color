@@ -43,7 +43,7 @@ public class Block {
   }
 
   public String toString() {
-    return item + ", average=" + averageRgb + ", distance=" + Color.getDistance(averageRgb, color) + ", color=" + color + ", composable=" + composable;
+    return item + ", averageRgb=" + Integer.toHexString(averageRgb) + ", distance=" + Color.getDistance(averageRgb, color) + ", color=" + color + ", composable=" + composable;
   }
 
   private boolean fuzzyEquals(int thisInt, int thatInt, int minimumSize) {
