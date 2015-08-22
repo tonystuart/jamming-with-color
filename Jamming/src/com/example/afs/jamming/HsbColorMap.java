@@ -33,7 +33,6 @@ public abstract class HsbColorMap extends BaseColorMap {
     if (closestEntry == null) {
       closestEntry = colorMap.firstEntry();
     }
-    System.out.println("color=" + color.getHue() + ", found=" + closestEntry.getKey().getHue());
     return closestEntry;
   }
 }

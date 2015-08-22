@@ -37,7 +37,7 @@ public class ScaleBasedChord implements Composable {
 
   @Override
   public String toString() {
-    return "ScaleBasedChord [name=" + name + ", tonic=" + tonic + ", intervals=" + Arrays.toString(intervals) + "]";
+    return "[name=" + name + ", tonic=" + tonic + ", intervals=" + Arrays.toString(intervals) + "]";
   }
 
 }
