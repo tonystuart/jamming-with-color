@@ -15,6 +15,8 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import com.example.afs.jamming.Trace.TraceOption;
+
 public class Jamming {
 
   public static void main(String[] args) {
@@ -63,8 +65,8 @@ public class Jamming {
   }
 
   private BufferedImage getImage(String fileName, int loopCount) {
-    if (options.isVerbose()) {
-      System.out.println("Reading updated image");
+    if (options.getTrace().isSet(TraceOption.INPUT)) {
+      System.out.println("Reading next image");
     }
     File file = new File(fileName);
     BufferedImage image;

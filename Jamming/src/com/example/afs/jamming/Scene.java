@@ -20,6 +20,7 @@ import java.util.Map.Entry;
 import javax.sound.midi.Sequence;
 
 import com.example.afs.jamming.ItemFinder.Background;
+import com.example.afs.jamming.Trace.TraceOption;
 
 public class Scene {
 
@@ -46,7 +47,7 @@ public class Scene {
       sequence = converter.convert(blocks, image.getWidth(), 250, options.getMidiChannel(), program);
       if (options.isMidiProgramLoop()) {
         program = (program + 1) % 127;
-        if (options.isVerbose()) {
+        if (options.getTrace().isSet(TraceOption.CONVERSION)) {
           System.out.println("Looping to program " + program);
         }
       }
@@ -65,7 +66,7 @@ public class Scene {
           Block oldBlock = oldIterator.next();
           Block newBlock = newIterator.next();
           if (!oldBlock.fuzzyEquals(newBlock, options.getObjectFuzziness())) {
-            if (options.isVerbose()) {
+            if (options.getTrace().isSet(TraceOption.COMPARISON)) {
               System.out.println("The new image is different from the previous image within " + options.getObjectFuzziness() + " pixels");
               System.out.println("The previous image contains " + oldBlock);
               System.out.println("The new image contains " + newBlock);
@@ -91,7 +92,7 @@ public class Scene {
   private void despeckleItems(ImageProcessor imageProcessor, List<Item> items) {
     if (options.getObjectMinimumSize() > 0) {
       int despeckleCount = imageProcessor.despeckle(options.getObjectMinimumSize());
-      if (options.isVerbose()) {
+      if (options.getTrace().isSet(TraceOption.DESPECKLING)) {
         System.out.println("Despeckling removed " + despeckleCount + " speckles");
         displayInfo("After despeckling", items);
       }
@@ -99,7 +100,7 @@ public class Scene {
   }
 
   private void displayBlockInfo(List<Block> blocks) {
-    if (options.isVerbose()) {
+    if (options.getTrace().isSet(TraceOption.OUTPUT)) {
       ArrayList<Block> sortedBlocks = new ArrayList<>(blocks);
       sortedBlocks.sort(new Comparator<Block>() {
         @Override
@@ -122,7 +123,7 @@ public class Scene {
   private List<Block> getBlocks(BufferedImage image, int loopCount) {
     ImageProcessor imageProcessor = new ImageProcessor(image, Background.LESS_THAN, options.getBackgroundThreshold(), options.getObjectMinimumSize());
     List<Item> items = imageProcessor.getItems();
-    if (options.isVerbose()) {
+    if (options.getTrace().isSet(TraceOption.INPUT)) {
       displayInfo("Original image", items);
     }
     despeckleItems(imageProcessor, items);

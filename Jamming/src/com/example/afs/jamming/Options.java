@@ -11,8 +11,10 @@ package com.example.afs.jamming;
 
 import com.example.afs.jamming.Converter.TickOrigin;
 import com.example.afs.jamming.ItemFinder.Background;
+import com.example.afs.jamming.Trace.TraceOption;
 
 public class Options {
+
   public static final int DRUM_CHANNEL = 9;
   public static final int STANDARD_DRUM_KIT = 1;
 
@@ -20,7 +22,7 @@ public class Options {
   private int backgroundThreshold = Color.getColor(64, 64, 64);
   private ColorMap colorMap = ColorMaps.getSingleton().getDefault();
   private String imageBaseFilename = "Jamming";
-  private int imageBrightness = 30;
+  private int imageBrightness = 40;
   private String imageCaptureProgram = "raspistill";
   private int imageHeight = 768;
   private int imageRotation = 90;
@@ -34,8 +36,9 @@ public class Options {
   private float midiTempoFactor = 1.0f;
   private TickOrigin midiTickOrigin = TickOrigin.MIDPOINT;
   private int midiVelocity = 127;
-  private int objectFuzziness = 20;
-  private int objectMinimumSize = 50;
+  private int objectFuzziness = 10;
+  private int objectMinimumSize = 30;
+  private Trace trace = new Trace(TraceOption.OUTPUT);
 
   public Background getBackgroundCondition() {
     return backgroundCondition;
@@ -107,6 +110,10 @@ public class Options {
 
   public int getObjectMinimumSize() {
     return objectMinimumSize;
+  }
+
+  public Trace getTrace() {
+    return trace;
   }
 
   public boolean isDisplayImage() {
@@ -201,7 +208,12 @@ public class Options {
     this.isPlayAudio = isAudio;
   }
 
+  public void setTrace(Trace trace) {
+    this.trace = trace;
+  }
+
   public void setVerbose(boolean isVerbose) {
     this.isVerbose = isVerbose;
   }
+
 }
