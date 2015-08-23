@@ -36,4 +36,13 @@ public class Extent {
     this.endX = endX;
   }
 
+  public void setStartX(int startX) {
+    this.startX = startX;
+  }
+
+  @Override
+  public String toString() {
+    return "[startX=" + startX + ", endX=" + endX + ", y=" + y + "]";
+  }
+
 }

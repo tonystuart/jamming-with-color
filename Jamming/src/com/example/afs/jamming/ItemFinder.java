@@ -10,11 +10,47 @@
 package com.example.afs.jamming;
 
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+
+// Be sure to consider special cases:
+//
+// See Test-M.png:
+//
+// **********
+// **********
+//  ** ** **
+//  ** **
+//     **
+//
+// See Test-W.png:
+//
+//     **
+//  ** **
+//  ** ** **
+// **********
+// **********
+//
+// See Test-M-Detached.png:
+//
+// **********
+// **********
+//  **    **
+//  ** ** **
+//     **
+//
+// See Test-W-Detached.png:
+//
+//     **
+//  ** ** **
+//  **    **
+// **********
+// **********
+//
 
 public class ItemFinder {
 
@@ -23,9 +59,10 @@ public class ItemFinder {
   }
 
   private enum State {
-    DROPOUT, INITIAL, ITEM
+    INITIAL, ITEM
   }
 
+  private ArrayList<Item> adjacentItemFlyweight = new ArrayList<>();
   private Set<Item> currentItems = new LinkedHashSet<>(); // Use LinkedHashSet to ensure consistent ordering
   private List<Item> items = new LinkedList<>();
   private Set<Item> marks = new HashSet<>();
@@ -41,26 +78,10 @@ public class ItemFinder {
         marks.add(currentItem);
       }
       State state = State.INITIAL;
-      int dropoutX = 0;
-      int dropoutMax = 0;
       for (int x = 0; x < width; x++) {
         int rgb = image.getRGB(x, y);
         boolean isBackground = isBackground(background, threshold, rgb);
         switch (state) {
-          case DROPOUT:
-            if (isBackground) {
-              if (x == dropoutMax) {
-                state = State.INITIAL;
-                for (int i = dropoutX; i <= x; i++) {
-                  image.setRGB(i, y, backgroundRgb);
-                }
-                addExtent(extent, dropoutX);
-                extent = null;
-              }
-            } else {
-              state = State.ITEM;
-            }
-            break;
           case INITIAL:
             if (isBackground) {
               image.setRGB(x, y, backgroundRgb);
@@ -71,9 +92,11 @@ public class ItemFinder {
             break;
           case ITEM:
             if (isBackground) {
-              state = State.DROPOUT;
-              dropoutX = x;
-              dropoutMax = Math.min(x + minimumSize, width);
+              state = State.INITIAL;
+              extent.setEndX(x - 1);
+              addExtent(extent);
+              extent = null;
+              image.setRGB(x, y, backgroundRgb);
             }
             break;
           default:
@@ -81,7 +104,8 @@ public class ItemFinder {
         }
       }
       if (extent != null) {
-        addExtent(extent, width);
+        extent.setEndX(width - 1);
+        addExtent(extent);
         extent = null;
       }
       for (Item item : marks) {
@@ -91,26 +115,35 @@ public class ItemFinder {
     return items;
   }
 
-  private void addExtent(Extent extent, int x) {
-    extent.setEndX(x - 1);
-    Item item = findAjacentItem(extent);
-    if (item == null) {
-      item = new Item();
-      items.add(item);
+  private void addExtent(Extent extent) {
+    Item masterItem = null;
+    List<Item> adjacentItems = findAjacentItems(extent);
+    if (adjacentItems.size() == 0) {
+      masterItem = new Item();
+      items.add(masterItem);
     } else {
-      marks.remove(item);
-    }
-    item.add(extent);
-    currentItems.add(item);
-  }
-
-  private Item findAjacentItem(Extent extent) {
-    for (Item currentItem : currentItems) {
-      if (isAdjacentToPrevious(currentItem, extent)) {
-        return currentItem;
+      for (Item adjacentItem : adjacentItems) {
+        if (masterItem == null) {
+          masterItem = adjacentItem;
+          marks.remove(masterItem);
+        } else {
+          masterItem.merge(adjacentItem);
+          items.remove(adjacentItem);
+        }
       }
     }
-    return null;
+    masterItem.addExtent(extent);
+    currentItems.add(masterItem);
+  }
+
+  private List<Item> findAjacentItems(Extent extent) {
+    adjacentItemFlyweight.clear();
+    for (Item currentItem : currentItems) {
+      if (isAdjacentToPrevious(currentItem, extent)) {
+        adjacentItemFlyweight.add(currentItem);
+      }
+    }
+    return adjacentItemFlyweight;
   }
 
   private int getBackgroundRgb(Background background, int threshold) {
@@ -129,14 +162,11 @@ public class ItemFinder {
   }
 
   private boolean isAdjacentToPrevious(Item item, Extent currentExtent) {
-    boolean isAdjacent;
-    Extent previousExtent = item.getExtents().peekLast();
-    if (previousExtent == null) {
-      isAdjacent = false;
-    } else if (previousExtent.getStartX() <= currentExtent.getEndX() && previousExtent.getEndX() > currentExtent.getStartX()) {
+    boolean isAdjacent = false;
+    int previousBottom = currentExtent.getY() - 1;
+    Extent previousExtent = item.getExtent(previousBottom);
+    if (previousExtent != null && previousExtent.getStartX() <= currentExtent.getEndX() && previousExtent.getEndX() > currentExtent.getStartX()) {
       isAdjacent = true;
-    } else {
-      isAdjacent = false;
     }
     return isAdjacent;
   }

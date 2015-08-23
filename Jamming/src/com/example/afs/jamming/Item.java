@@ -9,28 +9,35 @@
 
 package com.example.afs.jamming;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 public class Item {
   private int bottom;
-  private LinkedList<Extent> extents = new LinkedList<>();
+  private ArrayList<Extent> extents = new ArrayList<>();
   private int left = Integer.MAX_VALUE;
   private int right;
   private int top = Integer.MAX_VALUE;
 
-  public void add(Extent extent) {
-    extents.add(extent);
-    left = Math.min(left, extent.getStartX());
-    top = Math.min(top, extent.getY());
-    right = Math.max(right, extent.getEndX());
-    bottom = Math.max(bottom, extent.getY());
+  public void addExtent(Extent newExtent) {
+    Extent existingExtent = getExtent(newExtent.getY());
+    if (existingExtent == null) {
+      extents.add(newExtent);
+      existingExtent = newExtent;
+    } else {
+      existingExtent.setEndX(newExtent.getEndX());
+    }
+    updateLimits(existingExtent);
   }
 
   public int getBottom() {
     return bottom;
   }
 
-  public LinkedList<Extent> getExtents() {
+  public Extent getExtent(int y) {
+    return top <= y && y <= bottom ? extents.get(y - top) : null;
+  }
+
+  public ArrayList<Extent> getExtents() {
     return extents;
   }
 
@@ -54,7 +61,28 @@ public class Item {
     return (right - left) + 1; // +1 because left and right are inclusive
   }
 
+  public void merge(Item that) {
+    // Optimized based on item finder design
+    assert this.top <= that.top; // first item in adjacency list is always the top most
+    int first = Math.max(this.top, that.top); // from first overlapping extent to last overlapping extent
+    int last = Math.min(this.bottom, that.bottom); // may have already added extent for items to left on current row
+    for (int i = first; i <= last; i++) {
+      Extent thisExtent = this.extents.get(i - this.top);
+      Extent thatExtent = that.extents.get(i - that.top);
+      thisExtent.setStartX(Math.min(thisExtent.getStartX(), thatExtent.getStartX()));
+      thisExtent.setEndX(Math.max(thisExtent.getEndX(), thatExtent.getEndX()));
+      updateLimits(thisExtent);
+    }
+  }
+
   public String toString() {
     return "top=" + top + ", left=" + left + ", width=" + getWidth() + ", height=" + getHeight();
+  }
+
+  private void updateLimits(Extent newExtent) {
+    left = Math.min(left, newExtent.getStartX());
+    top = Math.min(top, newExtent.getY());
+    right = Math.max(right, newExtent.getEndX());
+    bottom = Math.max(bottom, newExtent.getY());
   }
 }
