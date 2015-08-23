@@ -21,20 +21,22 @@ import javax.sound.midi.Sequence;
 
 import com.example.afs.jamming.ItemFinder.Background;
 import com.example.afs.jamming.Trace.TraceOption;
+import com.example.afs.jamming.rowmapper.RowMapper;
+import com.example.afs.jamming.rowmapper.RowMapperFactory;
 
 public class Scene {
 
   private List<Block> blocks;
-  private BufferedImage image;
   private Options options;
   private int program;
+  private RowMapper rowMapper;
   private Sequence sequence;
 
   public Scene(Options options, BufferedImage image, int loopCount) {
     this.options = options;
-    this.image = image;
     this.blocks = getBlocks(image, loopCount);
     this.program = options.getMidiProgram();
+    this.rowMapper = RowMapperFactory.getRowMapper(options, image);
   }
 
   public boolean containsBlocks() {
@@ -43,8 +45,8 @@ public class Scene {
 
   public Sequence getSequence() {
     if (sequence == null || options.isMidiProgramLoop()) {
-      Converter converter = new Converter(options.getMidiTickOrigin(), options.getMidiVelocity());
-      sequence = converter.convert(blocks, image.getWidth(), 250, options.getMidiChannel(), program);
+      Converter converter = new Converter(options.getMidiTickOrigin(), options.getMidiVelocity(), rowMapper, options.getTrace());
+      sequence = converter.convert(blocks, 250, options.getMidiChannel(), program);
       if (options.isMidiProgramLoop()) {
         program = (program + 1) % 127;
         if (options.getTrace().isSet(TraceOption.CONVERSION)) {
