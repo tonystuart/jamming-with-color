@@ -23,59 +23,66 @@ public class CommandLineParser {
   public Options parseOptions(String[] args) {
     Options options = new Options();
     for (String arg : args) {
-      String[] tokens = arg.split("=");
-      if (tokens.length > 0 && tokens[0].startsWith("--")) {
-        if (tokens.length == 2 && tokens[0].equals("--backgroundCondition")) {
-          options.setBackgroundCondition(Background.valueOf(tokens[1]));
-        } else if (tokens.length == 2 && tokens[0].equals("--backgroundThreshold")) {
-          options.setBackgroundThreshold(Integer.parseInt(tokens[1], 16));
-        } else if (tokens.length == 2 && tokens[0].equals("--colorMap")) {
-          options.setColorMap(ColorMaps.getSingleton().get(tokens[1]));
-        } else if (tokens[0].equals("--help")) {
-          exitWithUsage();
-        } else if (tokens.length == 2 && tokens[0].equals("--imageBaseFilename")) {
-          options.setImageBaseFilename(tokens[1]);
-        } else if (tokens.length == 2 && tokens[0].equals("--imageBrightness")) {
-          options.setImageBrightness(Integer.parseInt(tokens[1]));
-        } else if (tokens.length == 2 && tokens[0].equals("--imageCaptureProgram")) {
-          options.setImageCaptureProgram(tokens[1]);
-        } else if (tokens.length == 2 && tokens[0].equals("--imageHeight")) {
-          options.setImageHeight(Integer.parseInt(tokens[1]));
-        } else if (tokens.length == 2 && tokens[0].equals("--imageRotation")) {
-          options.setImageRotation(Integer.parseInt(tokens[1]));
-        } else if (tokens.length == 2 && tokens[0].equals("--imageWidth")) {
-          options.setImageWidth(Integer.parseInt(tokens[1]));
-        } else if (tokens.length == 2 && tokens[0].equals("--isDisplayImage")) {
-          options.setDisplayImage(Boolean.valueOf(tokens[1]));
-        } else if (tokens.length == 2 && tokens[0].equals("--isPlayAudio")) {
-          options.setPlayAudio(Boolean.valueOf(tokens[1]));
-        } else if (tokens.length == 2 && tokens[0].equals("--isVerbose")) {
-          options.setVerbose(Boolean.valueOf(tokens[1]));
-          if (options.isVerbose()) {
-            options.getTrace().setAll();
+      try {
+        String[] tokens = arg.split("=");
+        if (tokens.length > 0 && tokens[0].startsWith("--")) {
+          if (tokens.length == 2 && tokens[0].equals("--backgroundCondition")) {
+            options.setBackgroundCondition(Background.valueOf(tokens[1]));
+          } else if (tokens.length == 2 && tokens[0].equals("--backgroundThreshold")) {
+            options.setBackgroundThreshold(Integer.parseInt(tokens[1], 16));
+          } else if (tokens.length == 2 && tokens[0].equals("--colorMap")) {
+            options.setColorMap(ColorMaps.getSingleton().get(tokens[1]));
+          } else if (tokens[0].equals("--help")) {
+            exitWithUsage();
+          } else if (tokens.length == 2 && tokens[0].equals("--imageBaseFilename")) {
+            options.setImageBaseFilename(tokens[1]);
+          } else if (tokens.length == 2 && tokens[0].equals("--imageBrightness")) {
+            options.setImageBrightness(Integer.parseInt(tokens[1]));
+          } else if (tokens.length == 2 && tokens[0].equals("--imageCaptureProgram")) {
+            options.setImageCaptureProgram(tokens[1]);
+          } else if (tokens.length == 2 && tokens[0].equals("--imageHeight")) {
+            options.setImageHeight(Integer.parseInt(tokens[1]));
+          } else if (tokens.length == 2 && tokens[0].equals("--imageRotation")) {
+            options.setImageRotation(Integer.parseInt(tokens[1]));
+          } else if (tokens.length == 2 && tokens[0].equals("--imageWidth")) {
+            options.setImageWidth(Integer.parseInt(tokens[1]));
+          } else if (tokens.length == 2 && tokens[0].equals("--isDisplayImage")) {
+            options.setDisplayImage(Boolean.valueOf(tokens[1]));
+          } else if (tokens.length == 2 && tokens[0].equals("--isPlayAudio")) {
+            options.setPlayAudio(Boolean.valueOf(tokens[1]));
+          } else if (tokens.length == 2 && tokens[0].equals("--isVerbose")) {
+            options.setVerbose(Boolean.valueOf(tokens[1]));
+            if (options.isVerbose()) {
+              options.getTrace().setAll();
+            } else {
+              options.getTrace().clearAll();
+            }
+          } else if (tokens.length == 2 && tokens[0].equals("--midiChannel")) {
+            options.setMidiChannel(Integer.parseInt(tokens[1]));
+          } else if (tokens.length == 2 && tokens[0].equals("--midiProgram")) {
+            options.setMidiProgram(Integer.parseInt(tokens[1]));
+          } else if (tokens.length == 2 && tokens[0].equals("--midiTempoFactor")) {
+            options.setMidiTempoFactor(Float.parseFloat(tokens[1]));
+          } else if (tokens.length == 2 && tokens[0].equals("--midiTickOrigin")) {
+            options.setMidiTickOrigin(TickOrigin.valueOf(tokens[1]));
+          } else if (tokens.length == 2 && tokens[0].equals("--midiVelocity")) {
+            options.setMidiVelocity(Integer.parseInt(tokens[1]));
+          } else if (tokens.length == 2 && tokens[0].equals("--objectFuzziness")) {
+            options.setObjectFuzziness(Integer.parseInt(tokens[1]));
+          } else if (tokens.length == 2 && tokens[0].equals("--objectMinimumSize")) {
+            options.setObjectMinimumSize(Integer.parseInt(tokens[1]));
+          } else if (tokens.length == 2 && tokens[0].equals("--rowSpacing")) {
+            options.setRowSpacing(Integer.parseInt(tokens[1]));
+          } else if (tokens.length == 2 && tokens[0].equals("--trace")) {
+            options.getTrace().set(TraceOption.valueOf(tokens[1]));
           } else {
-            options.getTrace().clearAll();
+            exitWithUsage(arg);
           }
-        } else if (tokens.length == 2 && tokens[0].equals("--midiChannel")) {
-          options.setMidiChannel(Integer.parseInt(tokens[1]));
-        } else if (tokens.length == 2 && tokens[0].equals("--midiProgram")) {
-          options.setMidiProgram(Integer.parseInt(tokens[1]));
-        } else if (tokens.length == 2 && tokens[0].equals("--midiTempoFactor")) {
-          options.setMidiTempoFactor(Float.parseFloat(tokens[1]));
-        } else if (tokens.length == 2 && tokens[0].equals("--midiTickOrigin")) {
-          options.setMidiTickOrigin(TickOrigin.valueOf(tokens[1]));
-        } else if (tokens.length == 2 && tokens[0].equals("--midiVelocity")) {
-          options.setMidiVelocity(Integer.parseInt(tokens[1]));
-        } else if (tokens.length == 2 && tokens[0].equals("--objectFuzziness")) {
-          options.setObjectFuzziness(Integer.parseInt(tokens[1]));
-        } else if (tokens.length == 2 && tokens[0].equals("--objectMinimumSize")) {
-          options.setObjectMinimumSize(Integer.parseInt(tokens[1]));
-        } else if (tokens.length == 2 && tokens[0].equals("--trace")) {
-          options.getTrace().set(TraceOption.valueOf(tokens[1]));
         } else {
           exitWithUsage(arg);
         }
-      } else {
+      } catch (RuntimeException e) {
+        e.printStackTrace();
         exitWithUsage(arg);
       }
     }
@@ -105,6 +112,7 @@ public class CommandLineParser {
     System.err.println("       --midiVelocity=1-127 (defaults to " + options.getMidiVelocity() + ")");
     System.err.println("       --objectFuzziness=min pixel delta between items in successive frames (defaults to " + options.getObjectFuzziness() + ")");
     System.err.println("       --objectMinimizeSize=max-speckle-size (defaults to " + options.getObjectMinimumSize() + ")");
+    System.err.println("       --rowSpacing=pixels between rows (defaults to " + options.getRowSpacing() + ", zero to disable multiple rows)");
     System.err.println("       --trace=" + getOptions(TraceOption.class) + " (may be specified more than once, defaults to " + options.getTrace() + ")");
     System.err.println("Supported color maps:");
     for (String name : ColorMaps.getSingleton().getNames()) {

@@ -38,7 +38,8 @@ public class Options {
   private int midiVelocity = 127;
   private int objectFuzziness = 10;
   private int objectMinimumSize = 30;
-  private Trace trace = new Trace(TraceOption.OUTPUT);
+  private int rowSpacing = 0;
+  private Trace trace = new Trace(TraceOption.CONVERSION);
 
   public Background getBackgroundCondition() {
     return backgroundCondition;
@@ -110,6 +111,10 @@ public class Options {
 
   public int getObjectMinimumSize() {
     return objectMinimumSize;
+  }
+
+  public int getRowSpacing() {
+    return rowSpacing;
   }
 
   public Trace getTrace() {
@@ -206,6 +211,10 @@ public class Options {
 
   public void setPlayAudio(boolean isAudio) {
     this.isPlayAudio = isAudio;
+  }
+
+  public void setRowSpacing(int rowSpacing) {
+    this.rowSpacing = rowSpacing;
   }
 
   public void setTrace(Trace trace) {

@@ -30,6 +30,10 @@ public class Block {
     return fuzzyEquals;
   }
 
+  public int getAverageRgb() {
+    return averageRgb;
+  }
+
   public Color getColor() {
     return color;
   }
