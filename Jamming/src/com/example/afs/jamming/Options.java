@@ -39,7 +39,8 @@ public class Options {
   private int objectFuzziness = 10;
   private int objectMinimumSize = 30;
   private int rowSpacing = 0;
-  private Trace trace = new Trace(TraceOption.CONVERSION);
+  private int threads = 0;
+  private Trace trace = new Trace(TraceOption.CONVERSION, TraceOption.PERFORMANCE);
 
   public Background getBackgroundCondition() {
     return backgroundCondition;
@@ -115,6 +116,10 @@ public class Options {
 
   public int getRowSpacing() {
     return rowSpacing;
+  }
+
+  public int getThreads() {
+    return threads;
   }
 
   public Trace getTrace() {
@@ -215,6 +220,10 @@ public class Options {
 
   public void setRowSpacing(int rowSpacing) {
     this.rowSpacing = rowSpacing;
+  }
+
+  public void setThreads(int threads) {
+    this.threads = threads;
   }
 
   public void setTrace(Trace trace) {

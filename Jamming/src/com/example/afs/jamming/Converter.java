@@ -71,6 +71,7 @@ public class Converter {
 
     private void display() {
       traceItems.sort(new TraceComparator());
+      System.out.println(traceItems.size() + " block(s) present");
       for (TraceItem traceItem : traceItems) {
         Block block = traceItem.getBlock();
         Limits limits = traceItem.getLimits();

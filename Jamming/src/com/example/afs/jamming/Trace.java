@@ -5,7 +5,7 @@ import java.util.EnumSet;
 public class Trace {
 
   public enum TraceOption {
-    COMPARISON, CONVERSION, DESPECKLING, INPUT, OUTPUT
+    COMPARISON, CONVERSION, DESPECKLING, INPUT, OUTPUT, PERFORMANCE
   }
 
   private EnumSet<TraceOption> traceOptions = EnumSet.noneOf(TraceOption.class);
