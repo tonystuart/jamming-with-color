@@ -67,12 +67,11 @@ public class ItemFinder {
   private List<Item> items = new LinkedList<>();
   private Set<Item> marks = new HashSet<>();
 
-  public List<Item> findItems(BufferedImage image, Background background, int threshold, int minimumSize) {
+  public List<Item> findItems(BufferedImage image, int firstRow, int lastRow, Background background, int threshold, int minimumSize) {
     Extent extent = null;
     int width = image.getWidth();
-    int height = image.getHeight();
     int backgroundRgb = getBackgroundRgb(background, threshold);
-    for (int y = 0; y < height; y++) {
+    for (int y = firstRow; y <= lastRow; y++) {
       marks.clear();
       for (Item currentItem : currentItems) {
         marks.add(currentItem);
@@ -117,7 +116,7 @@ public class ItemFinder {
 
   private void addExtent(Extent extent) {
     Item masterItem = null;
-    List<Item> adjacentItems = findAjacentItems(extent);
+    List<Item> adjacentItems = findAdjacentItems(extent);
     if (adjacentItems.size() == 0) {
       masterItem = new Item();
       items.add(masterItem);
@@ -136,7 +135,7 @@ public class ItemFinder {
     currentItems.add(masterItem);
   }
 
-  private List<Item> findAjacentItems(Extent extent) {
+  private List<Item> findAdjacentItems(Extent extent) {
     adjacentItemFlyweight.clear();
     for (Item currentItem : currentItems) {
       if (isAdjacentToPrevious(currentItem, extent)) {
@@ -165,7 +164,7 @@ public class ItemFinder {
     boolean isAdjacent = false;
     int previousBottom = currentExtent.getY() - 1;
     Extent previousExtent = item.getExtent(previousBottom);
-    if (previousExtent != null && previousExtent.getStartX() <= currentExtent.getEndX() && previousExtent.getEndX() > currentExtent.getStartX()) {
+    if (previousExtent != null && previousExtent.getStartX() <= currentExtent.getEndX() && previousExtent.getEndX() >= currentExtent.getStartX()) {
       isAdjacent = true;
     }
     return isAdjacent;

@@ -26,7 +26,10 @@ public class Item {
     } else {
       existingExtent.setEndX(newExtent.getEndX());
     }
-    updateLimits(existingExtent);
+    top = Math.min(top, newExtent.getY());
+    bottom = Math.max(bottom, newExtent.getY());
+    left = Math.min(left, newExtent.getStartX());
+    right = Math.max(right, newExtent.getEndX());
   }
 
   public int getBottom() {
@@ -62,27 +65,55 @@ public class Item {
   }
 
   public void merge(Item that) {
-    // Optimized based on item finder design
-    assert this.top <= that.top; // first item in adjacency list is always the top most
-    int first = Math.max(this.top, that.top); // from first overlapping extent to last overlapping extent
-    int last = Math.min(this.bottom, that.bottom); // may have already added extent for items to left on current row
+    if (that.top >= this.top && that.bottom <= this.bottom) {
+      mergeFast(that);
+    } else {
+      int first = Math.min(this.top, that.top);
+      int last = Math.max(this.bottom, that.bottom);
+      ArrayList<Extent> newExtents = new ArrayList<>(last - first + 1);
+      for (int row = first; row <= last; row++) {
+        int startX = Integer.MAX_VALUE;
+        int endX = 0;
+        if (this.top <= row && row <= this.bottom) {
+          Extent extent = this.getExtent(row);
+          startX = Math.min(startX, extent.getStartX());
+          endX = Math.max(endX, extent.getEndX());
+        }
+        if (that.top <= row && row <= that.bottom) {
+          Extent extent = that.getExtent(row);
+          startX = Math.min(startX, extent.getStartX());
+          endX = Math.max(endX, extent.getEndX());
+        }
+        Extent extent = new Extent(startX, row);
+        extent.setEndX(endX);
+        newExtents.add(extent);
+      }
+      extents = newExtents;
+      updateLimits(that);
+    }
+  }
+
+  public String toString() {
+    return "Item [x=" + left + "->" + right + ", y=" + top + "->" + bottom + ", w=" + getWidth() + ", h=" + getHeight() + "]";
+  }
+
+  private void mergeFast(Item that) {
+    int first = Math.max(this.top, that.top);
+    int last = Math.min(this.bottom, that.bottom);
     for (int i = first; i <= last; i++) {
       Extent thisExtent = this.extents.get(i - this.top);
       Extent thatExtent = that.extents.get(i - that.top);
       thisExtent.setStartX(Math.min(thisExtent.getStartX(), thatExtent.getStartX()));
       thisExtent.setEndX(Math.max(thisExtent.getEndX(), thatExtent.getEndX()));
-      updateLimits(thisExtent);
     }
+    updateLimits(that);
   }
 
-  public String toString() {
-    return "top=" + top + ", left=" + left + ", width=" + getWidth() + ", height=" + getHeight();
+  private void updateLimits(Item that) {
+    top = Math.min(this.top, that.top);
+    left = Math.min(this.left, that.left);
+    bottom = Math.max(this.bottom, that.bottom);
+    right = Math.max(this.right, that.right);
   }
 
-  private void updateLimits(Extent newExtent) {
-    left = Math.min(left, newExtent.getStartX());
-    top = Math.min(top, newExtent.getY());
-    right = Math.max(right, newExtent.getEndX());
-    bottom = Math.max(bottom, newExtent.getY());
-  }
 }

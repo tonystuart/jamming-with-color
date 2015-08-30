@@ -73,6 +73,8 @@ public class CommandLineParser {
             options.setObjectMinimumSize(Integer.parseInt(tokens[1]));
           } else if (tokens.length == 2 && tokens[0].equals("--rowSpacing")) {
             options.setRowSpacing(Integer.parseInt(tokens[1]));
+          } else if (tokens.length == 2 && tokens[0].equals("--threads")) {
+            options.setThreads(Integer.parseInt(tokens[1]));
           } else if (tokens.length == 2 && tokens[0].equals("--trace")) {
             options.getTrace().set(TraceOption.valueOf(tokens[1]));
           } else {
@@ -113,6 +115,7 @@ public class CommandLineParser {
     System.err.println("       --objectFuzziness=min pixel delta between items in successive frames (defaults to " + options.getObjectFuzziness() + ")");
     System.err.println("       --objectMinimizeSize=max-speckle-size (defaults to " + options.getObjectMinimumSize() + ")");
     System.err.println("       --rowSpacing=pixels between rows (defaults to " + options.getRowSpacing() + ", zero to disable multiple rows)");
+    System.err.println("       --threads=image-processing-threads (defaults to " + options.getThreads() + ", zero to default to number of processors)");
     System.err.println("       --trace=" + getOptions(TraceOption.class) + " (may be specified more than once, defaults to " + options.getTrace() + ")");
     System.err.println("Supported color maps:");
     for (String name : ColorMaps.getSingleton().getNames()) {
