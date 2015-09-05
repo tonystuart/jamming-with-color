@@ -144,6 +144,18 @@ public class Raspistill {
       return this;
     }
 
+    public RaspistillBuilder setImageWhiteBalance(WhiteBalance whiteBalance) {
+      command.add("--awb");
+      command.add(whiteBalance.name());
+      return this;
+    }
+
+    public RaspistillBuilder setImageWhiteBalanceGain(String whiteBalanceGain) {
+      command.add("--awbgains");
+      command.add(whiteBalanceGain);
+      return this;
+    }
+
     public RaspistillBuilder setKeypress() {
       command.add("--keypress");
       return this;
@@ -188,6 +200,10 @@ public class Raspistill {
       command.add(Integer.toString(width));
       return this;
     }
+  }
+
+  public enum WhiteBalance {
+    auto, cloud, flash, fluorescent, horizon, incandescent, off, shade, sun, tungsten
   }
 
   private static class OutputLogger extends Thread {

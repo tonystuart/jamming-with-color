@@ -24,6 +24,8 @@ public class RaspistillWatcher {
       RaspistillBuilder raspistillBuilder = new RaspistillBuilder(options.getImageCaptureProgram());
       raspistillBuilder.setBrightness(options.getImageBrightness());
       raspistillBuilder.setHeight(options.getImageHeight());
+      raspistillBuilder.setImageWhiteBalance(options.getImageWhiteBalance());
+      raspistillBuilder.setImageWhiteBalanceGain(options.getImageWhiteBalanceGain());
       raspistillBuilder.setLatestFilename(imageFile.getName());
       raspistillBuilder.setOutputFilename(options.getImageOutputFilename());
       raspistillBuilder.setRotation(options.getImageRotation());
