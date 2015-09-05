@@ -11,6 +11,7 @@ package com.example.afs.jamming;
 
 import com.example.afs.jamming.Converter.TickOrigin;
 import com.example.afs.jamming.ItemFinder.Background;
+import com.example.afs.jamming.Raspistill.WhiteBalance;
 import com.example.afs.jamming.Trace.TraceOption;
 
 public class CommandLineParser {
@@ -44,6 +45,10 @@ public class CommandLineParser {
             options.setImageHeight(Integer.parseInt(tokens[1]));
           } else if (tokens.length == 2 && tokens[0].equals("--imageRotation")) {
             options.setImageRotation(Integer.parseInt(tokens[1]));
+          } else if (tokens.length == 2 && tokens[0].equals("--imageWhiteBalance")) {
+            options.setImageWhiteBalance(WhiteBalance.valueOf(tokens[1]));
+          } else if (tokens.length == 2 && tokens[0].equals("--imageWhiteBalanceGain")) {
+            options.setImageWhiteBalanceGain(tokens[1]);
           } else if (tokens.length == 2 && tokens[0].equals("--imageWidth")) {
             options.setImageWidth(Integer.parseInt(tokens[1]));
           } else if (tokens.length == 2 && tokens[0].equals("--isDisplayImage")) {
@@ -103,7 +108,9 @@ public class CommandLineParser {
     System.err.println("       --imageCaptureProgram=path (defaults to " + options.getImageCaptureProgram() + ")");
     System.err.println("       --imageHeight=0-1944 pixels (defaults to " + options.getImageHeight() + ")");
     System.err.println("       --imageRotation=0-359 degrees (defaults to " + options.getImageRotation() + ")");
-    System.err.println("       --imageHeight=0-2592 pixels (defaults to " + options.getImageWidth() + ")");
+    System.err.println("       --imageWhiteBalance=" + getOptions(WhiteBalance.class) + " (defaults to " + options.getImageWhiteBalance() + ")");
+    System.err.println("       --imageWhiteBalanceGain=red,blue (defaults to " + options.getImageWhiteBalanceGain() + ", only used with imageWhiteBalance=off)");
+    System.err.println("       --imageWidth=0-2592 pixels (defaults to " + options.getImageWidth() + ")");
     System.err.println("       --isDisplayImage=false|true (defaults to " + options.isDisplayImage() + ")");
     System.err.println("       --isPlayAudio=false|true (defaults to " + options.isPlayAudio() + ")");
     System.err.println("       --isVerbose=false|true (clears/sets all trace flags, defaults to " + options.isVerbose() + ")");

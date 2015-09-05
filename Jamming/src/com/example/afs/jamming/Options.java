@@ -11,6 +11,7 @@ package com.example.afs.jamming;
 
 import com.example.afs.jamming.Converter.TickOrigin;
 import com.example.afs.jamming.ItemFinder.Background;
+import com.example.afs.jamming.Raspistill.WhiteBalance;
 import com.example.afs.jamming.Trace.TraceOption;
 
 public class Options {
@@ -26,6 +27,8 @@ public class Options {
   private String imageCaptureProgram = "raspistill";
   private int imageHeight = 768;
   private int imageRotation = 90;
+  private WhiteBalance imageWhiteBalance = WhiteBalance.auto;
+  private String imageWhiteBalanceGain = "1.0,1.2";
   private int imageWidth = 1024;
   private boolean isDisplayImage = true;
   private boolean isMidiProgramLoop = false;
@@ -80,6 +83,14 @@ public class Options {
 
   public int getImageRotation() {
     return imageRotation;
+  }
+
+  public WhiteBalance getImageWhiteBalance() {
+    return imageWhiteBalance;
+  }
+
+  public String getImageWhiteBalanceGain() {
+    return imageWhiteBalanceGain;
   }
 
   public int getImageWidth() {
@@ -176,6 +187,14 @@ public class Options {
 
   public void setImageRotation(int imageRotation) {
     this.imageRotation = imageRotation;
+  }
+
+  public void setImageWhiteBalance(WhiteBalance imageWhiteBalance) {
+    this.imageWhiteBalance = imageWhiteBalance;
+  }
+
+  public void setImageWhiteBalanceGain(String imageWhiteBalanceGain) {
+    this.imageWhiteBalanceGain = imageWhiteBalanceGain;
   }
 
   public void setImageWidth(int imageWidth) {
