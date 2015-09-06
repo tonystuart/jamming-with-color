@@ -12,6 +12,8 @@ package com.example.afs.jamming.command;
 import com.example.afs.jamming.color.base.ColorMap;
 import com.example.afs.jamming.color.base.ColorMaps;
 import com.example.afs.jamming.color.rgb.Color;
+import com.example.afs.jamming.command.Raspistill.WhiteBalance;
+import com.example.afs.jamming.command.Trace.TraceOption;
 import com.example.afs.jamming.image.ItemFinder.Background;
 import com.example.afs.jamming.sound.Converter.TickOrigin;
 
