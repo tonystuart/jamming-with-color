@@ -7,14 +7,12 @@
 // This program is made available on an "as is" basis, without
 // warranties or conditions of any kind, either express or implied.
 
-package com.example.afs.jamming.rowmapper;
+package com.example.afs.jamming.sound;
 
-import com.example.afs.jamming.image.Block;
+public class Drum extends Sound {
 
-public interface RowMapper {
-
-  Limits getLimits(Block block);
-
-  int getTotalWidth();
+  public Drum(String name, int value) {
+    super(name, value);
+  }
 
 }

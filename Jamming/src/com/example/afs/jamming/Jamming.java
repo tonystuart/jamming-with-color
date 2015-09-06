@@ -15,7 +15,13 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-import com.example.afs.jamming.Trace.TraceOption;
+import com.example.afs.jamming.command.CommandLineParser;
+import com.example.afs.jamming.command.Options;
+import com.example.afs.jamming.command.RaspistillWatcher;
+import com.example.afs.jamming.command.Trace.TraceOption;
+import com.example.afs.jamming.image.ImageViewer;
+import com.example.afs.jamming.image.Scene;
+import com.example.afs.jamming.sound.Player;
 
 public class Jamming {
 

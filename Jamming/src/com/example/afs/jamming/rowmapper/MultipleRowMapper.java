@@ -9,7 +9,7 @@
 
 package com.example.afs.jamming.rowmapper;
 
-import com.example.afs.jamming.Block;
+import com.example.afs.jamming.image.Block;
 
 public class MultipleRowMapper implements RowMapper {
   private int currentBottom;

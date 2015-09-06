@@ -7,14 +7,13 @@
 // This program is made available on an "as is" basis, without
 // warranties or conditions of any kind, either express or implied.
 
-package com.example.afs.jamming.rowmapper;
+package com.example.afs.jamming.sound;
 
-import com.example.afs.jamming.image.Block;
 
-public interface RowMapper {
+public interface Composable {
 
-  Limits getLimits(Block block);
+  void addToTrack(TrackBuilder trackBuilder, long tick, int channel, int velocity, int duration);
 
-  int getTotalWidth();
+  String getName();
 
 }
