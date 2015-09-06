@@ -75,7 +75,15 @@ public class Converter {
       for (TraceItem traceItem : traceItems) {
         Block block = traceItem.getBlock();
         Limits limits = traceItem.getLimits();
-        System.out.printf("row=%04d, left=%04d, right=%04d, averageRgb=%06x, distance=%04d %s %s\n", limits.getRow(), limits.getLeft(), limits.getRight(), block.getAverageRgb(), Color.getDistance(block.getAverageRgb(), block.getColor()), block.getColor(), block.getComposable());
+        int averageRgb = block.getAverageRgb();
+        Color matchingColor = block.getColor();
+        if (matchingColor instanceof HsbColor) {
+          Color averageHsb = new HsbColor(averageRgb);
+          System.out.printf("row=%04d, left=%04d, right=%04d, averageHsb=%s, matchingHsb=%s %s\n", limits.getRow(), limits.getLeft(), limits.getRight(), averageHsb, matchingColor, block.getComposable());
+        } else {
+          int distance = Color.getDistance(block.getAverageRgb(), matchingColor);
+          System.out.printf("row=%04d, left=%04d, right=%04d, averageRgb=%06x, matchingRgb=%s, distance=%d %s\n", limits.getRow(), limits.getLeft(), limits.getRight(), averageRgb, matchingColor, distance, block.getComposable());
+        }
       }
     }
 

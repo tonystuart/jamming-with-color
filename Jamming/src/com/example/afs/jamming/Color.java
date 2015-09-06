@@ -91,11 +91,9 @@ public class Color {
 
   @Override
   public String toString() {
-    String s;
-    if (name == null) {
-      s = Integer.toHexString(rgb);
-    } else {
-      s = name + " (" + Integer.toHexString(rgb) + ")";
+    String s = String.format("%06x", rgb);
+    if (name != null) {
+      s += " (" + name + ")";
     }
     return s;
   }

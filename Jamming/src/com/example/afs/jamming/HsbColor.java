@@ -73,7 +73,12 @@ public class HsbColor extends Color {
 
   @Override
   public String toString() {
-    return super.toString() + " " + hue + "/" + saturation + "/" + brightness;
+    String s = String.format("%06x %.1f/%.1f/%.1f", getRgb(), hue, saturation, brightness);
+    String name = getName();
+    if (name != null) {
+      s += " (" + name + ")";
+    }
+    return s;
   }
 
 }
