@@ -7,14 +7,18 @@
 // This program is made available on an "as is" basis, without
 // warranties or conditions of any kind, either express or implied.
 
-package com.example.afs.jamming.rowmapper;
+package com.example.afs.jamming.color.base;
 
-import com.example.afs.jamming.image.Block;
 
-public interface RowMapper {
+public abstract class BaseColorMap implements ColorMap {
 
-  Limits getLimits(Block block);
+  @Override
+  public String getName() {
+    return getClass().getSimpleName();
+  }
 
-  int getTotalWidth();
+  public String toString() {
+    return getName();
+  }
 
 }

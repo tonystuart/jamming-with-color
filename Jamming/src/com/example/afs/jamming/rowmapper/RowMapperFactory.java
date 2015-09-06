@@ -2,7 +2,7 @@ package com.example.afs.jamming.rowmapper;
 
 import java.awt.image.BufferedImage;
 
-import com.example.afs.jamming.Options;
+import com.example.afs.jamming.command.Options;
 
 public class RowMapperFactory {
   public static RowMapper getRowMapper(Options options, BufferedImage image) {

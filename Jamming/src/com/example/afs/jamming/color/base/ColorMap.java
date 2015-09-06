@@ -7,14 +7,17 @@
 // This program is made available on an "as is" basis, without
 // warranties or conditions of any kind, either express or implied.
 
-package com.example.afs.jamming.rowmapper;
+package com.example.afs.jamming.color.base;
 
-import com.example.afs.jamming.image.Block;
+import java.util.Map.Entry;
 
-public interface RowMapper {
+import com.example.afs.jamming.color.rgb.Color;
+import com.example.afs.jamming.sound.Composable;
 
-  Limits getLimits(Block block);
+public interface ColorMap {
 
-  int getTotalWidth();
+  Entry<? extends Color, ? extends Composable> findClosestEntry(int colorValue);
+
+  String getName();
 
 }
