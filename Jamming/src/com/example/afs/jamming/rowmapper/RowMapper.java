@@ -13,8 +13,8 @@ import com.example.afs.jamming.image.Block;
 
 public interface RowMapper {
 
-  Limits getLimits(Block block);
+  int getMappedWidth();
 
-  int getTotalWidth();
+  MappedBlock getPosition(Block block);
 
 }

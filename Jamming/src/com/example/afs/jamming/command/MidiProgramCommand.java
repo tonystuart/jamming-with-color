@@ -7,29 +7,24 @@
 // This program is made available on an "as is" basis, without
 // warranties or conditions of any kind, either express or implied.
 
-package com.example.afs.jamming.rowmapper;
+package com.example.afs.jamming.command;
 
-public class Limits {
-  private int left;
-  private int right;
-  private int row;
+public class MidiProgramCommand extends Command {
 
-  public Limits(int row, int left, int right) {
-    this.row = row;
-    this.left = left;
-    this.right = right;
+  private int midiProgram;
+
+  public MidiProgramCommand(int midiProgram) {
+    super(Event.PROGRAM);
+    this.midiProgram = midiProgram;
   }
 
-  public int getLeft() {
-    return left;
+  public int getMidiProgram() {
+    return midiProgram;
   }
 
-  public int getRight() {
-    return right;
-  }
-
-  public int getRow() {
-    return row;
+  @Override
+  public String toString() {
+    return "MidiProgramCommand [midiProgram=" + midiProgram + "]";
   }
 
 }

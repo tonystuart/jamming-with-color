@@ -9,6 +9,7 @@
 
 package com.example.afs.jamming.image;
 
+import com.example.afs.jamming.color.hsb.HsbColor;
 import com.example.afs.jamming.color.rgb.Color;
 import com.example.afs.jamming.sound.Composable;
 
@@ -50,7 +51,11 @@ public class Block {
   }
 
   public String toString() {
-    return item + ", averageRgb=" + Integer.toHexString(averageRgb) + ", distance=" + Color.getDistance(averageRgb, color) + ", color=" + color + ", composable=" + composable;
+    if (color instanceof HsbColor) {
+      return item + ", averageHsb=" + new HsbColor(averageRgb) + ", matchingHsb=" + color + ", composable=" + composable;
+    } else {
+      return item + ", averageRgb=" + Integer.toHexString(averageRgb) + ", distance=" + Color.getDistance(averageRgb, color) + ", color=" + color + ", composable=" + composable;
+    }
   }
 
   private boolean fuzzyEquals(int thisInt, int thatInt, int minimumSize) {

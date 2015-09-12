@@ -7,17 +7,24 @@
 // This program is made available on an "as is" basis, without
 // warranties or conditions of any kind, either express or implied.
 
-package com.example.afs.jamming.color.base;
+package com.example.afs.jamming.command;
 
-public abstract class BaseColorMap implements ColorMap {
+public class MidiTempoFactorCommand extends Command {
 
-  @Override
-  public String getName() {
-    return getClass().getSimpleName();
+  private float midiTempoFactor;
+
+  public MidiTempoFactorCommand(float midiTempoFactor) {
+    super(Event.TEMPO);
+    this.midiTempoFactor = midiTempoFactor;
   }
 
+  public float getMidiTempoFactor() {
+    return midiTempoFactor;
+  }
+
+  @Override
   public String toString() {
-    return getName();
+    return "MidiTempoFactorCommand [midiTempoFactor=" + midiTempoFactor + "]";
   }
 
 }
