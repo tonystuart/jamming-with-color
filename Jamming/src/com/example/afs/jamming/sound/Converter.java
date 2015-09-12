@@ -9,21 +9,14 @@
 
 package com.example.afs.jamming.sound;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.ShortMessage;
 
-import com.example.afs.jamming.color.hsb.HsbColor;
-import com.example.afs.jamming.color.rgb.Color;
-import com.example.afs.jamming.command.Trace;
+import com.example.afs.jamming.command.Options;
 import com.example.afs.jamming.command.Trace.TraceOption;
-import com.example.afs.jamming.image.Block;
-import com.example.afs.jamming.rowmapper.Limits;
-import com.example.afs.jamming.rowmapper.RowMapper;
+import com.example.afs.jamming.image.Scene;
+import com.example.afs.jamming.rowmapper.MappedBlock;
 import com.sun.media.sound.MidiUtils;
 
 public class Converter {
@@ -32,95 +25,31 @@ public class Converter {
     LEFT, MIDPOINT
   }
 
-  private class Tracer {
-
-    private class TraceComparator implements Comparator<TraceItem> {
-      @Override
-      public int compare(TraceItem o1, TraceItem o2) {
-        int deltaRow = o1.getLimits().getRow() - o2.getLimits().getRow();
-        if (deltaRow != 0) {
-          return deltaRow;
-        }
-        int deltaLeft = o1.getLimits().getLeft() - o2.getLimits().getRight();
-        if (deltaLeft != 0) {
-          return deltaLeft;
-        }
-        return 0;
-      }
-    }
-
-    private class TraceItem {
-      private Block block;
-      private Limits limits;
-
-      public TraceItem(Limits limits, Block block) {
-        this.limits = limits;
-        this.block = block;
-      }
-
-      public Block getBlock() {
-        return block;
-      }
-
-      public Limits getLimits() {
-        return limits;
-      }
-    }
-
-    private List<TraceItem> traceItems = new ArrayList<>();
-
-    private void clear() {
-      traceItems.clear();
-    }
-
-    private void display() {
-      traceItems.sort(new TraceComparator());
-      System.out.println(traceItems.size() + " block(s) present");
-      for (TraceItem traceItem : traceItems) {
-        Block block = traceItem.getBlock();
-        Limits limits = traceItem.getLimits();
-        int averageRgb = block.getAverageRgb();
-        Color matchingColor = block.getColor();
-        if (matchingColor instanceof HsbColor) {
-          Color averageHsb = new HsbColor(averageRgb);
-          System.out.printf("row=%04d, left=%04d, right=%04d, averageHsb=%s, matchingHsb=%s %s\n", limits.getRow(), limits.getLeft(), limits.getRight(), averageHsb, matchingColor, block.getComposable());
-        } else {
-          int distance = Color.getDistance(block.getAverageRgb(), matchingColor);
-          System.out.printf("row=%04d, left=%04d, right=%04d, averageRgb=%06x, matchingRgb=%s, distance=%d %s\n", limits.getRow(), limits.getLeft(), limits.getRight(), averageRgb, matchingColor, distance, block.getComposable());
-        }
-      }
-    }
-
-    private void trace(Limits limits, Block block) {
-      traceItems.add(new TraceItem(limits, block));
-    }
-  }
-
   public static final int TICKS_PER_BEAT = 250;
-  private RowMapper rowMapper;
-  private TickOrigin tickOrigin;
-  private Tracer tracer;
-  private int velocity;
+  private static final int MAXIMUM_VELOCITY = 127;
 
-  public Converter(TickOrigin tickOrigin, int velocity, RowMapper rowMapper, Trace trace) {
-    this.tickOrigin = tickOrigin;
-    this.velocity = velocity;
-    this.rowMapper = rowMapper;
-    this.tracer = trace.isSet(TraceOption.CONVERSION) ? new Tracer() : null;
+  private int midiChannel;
+  private int midiProgram;
+  private TickOrigin tickOrigin;
+
+  public Converter(Options options, int midiChannel, int midiProgram) {
+    this.tickOrigin = options.getMidiTickOrigin();
+    this.midiChannel = midiChannel;
+    this.midiProgram = midiProgram;
+    if (options.getTrace().isSet(TraceOption.CONVERSION)) {
+      System.out.println("midiChannel " + midiChannel);
+      System.out.println("midiProgram " + midiProgram);
+    }
   }
 
-  public Sequence convert(List<Block> blocks, int ticksPerBeat, int channel, int program) {
+  public Sequence convert(Scene scene) {
     try {
-      Sequence sequence = new Sequence(Sequence.PPQ, ticksPerBeat);
+      Sequence sequence = new Sequence(Sequence.PPQ, TICKS_PER_BEAT);
       TrackBuilder trackBuilder = new TrackBuilder(sequence.createTrack());
-      trackBuilder.addShortMessage(0, channel, ShortMessage.PROGRAM_CHANGE, program, 0);
-      if (tracer != null) {
-        tracer.clear();
-      }
-      for (Block block : blocks) {
-        Limits limits = rowMapper.getLimits(block);
-        int left = limits.getLeft();
-        int right = limits.getRight();
+      trackBuilder.addShortMessage(0, midiChannel, ShortMessage.PROGRAM_CHANGE, midiProgram, 0);
+      for (MappedBlock mappedBlock : scene.getMappedBlocks()) {
+        int left = mappedBlock.getLeft();
+        int right = mappedBlock.getRight();
         int duration;
         long tick;
         switch (tickOrigin) {
@@ -135,20 +64,25 @@ public class Converter {
           default:
             throw new UnsupportedOperationException(tickOrigin.toString());
         }
-        block.getComposable().addToTrack(trackBuilder, tick, channel, velocity, duration);
-        if (tracer != null) {
-          tracer.trace(limits, block);
-        }
+        int velocity = scaleVelocity(scene.getMaximumItemHeight(), mappedBlock.getBlock().getItem().getHeight());
+        mappedBlock.getBlock().getComposable().addToTrack(trackBuilder, tick, midiChannel, velocity, duration);
       }
-      int lastTick = rowMapper.getTotalWidth();
-      trackBuilder.addMetaMessage(lastTick, channel, MidiUtils.META_END_OF_TRACK_TYPE, null, 0);
-      if (tracer != null) {
-        tracer.display();
-      }
+      int lastTick = scene.getMappedWidth();
+      trackBuilder.addMetaMessage(lastTick, midiChannel, MidiUtils.META_END_OF_TRACK_TYPE, null, 0);
       return sequence;
     } catch (InvalidMidiDataException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public int getMidiProgram() {
+    return midiProgram;
+  }
+
+  private int scaleVelocity(int maximumItemHeight, int itemHeight) {
+    int midVelocity = MAXIMUM_VELOCITY / 2;
+    int scaledVelocity = midVelocity + ((midVelocity * itemHeight) / maximumItemHeight);
+    return scaledVelocity;
   }
 
 }

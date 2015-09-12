@@ -46,7 +46,7 @@ public class Options {
   private int objectMinimumSize = 30;
   private int rowSpacing = 0;
   private int threads = 0;
-  private Trace trace = new Trace(TraceOption.CONVERSION, TraceOption.PERFORMANCE);
+  private Trace trace = new Trace(TraceOption.CALIBRATE, TraceOption.MAPPING, TraceOption.PERFORMANCE);
 
   public Background getBackgroundCondition() {
     return backgroundCondition;

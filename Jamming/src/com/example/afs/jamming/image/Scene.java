@@ -10,7 +10,7 @@
 package com.example.afs.jamming.image;
 
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -22,47 +22,56 @@ import javax.sound.midi.Sequence;
 import com.example.afs.jamming.color.rgb.Color;
 import com.example.afs.jamming.command.Options;
 import com.example.afs.jamming.command.Trace.TraceOption;
+import com.example.afs.jamming.rowmapper.MappedBlock;
 import com.example.afs.jamming.rowmapper.RowMapper;
 import com.example.afs.jamming.rowmapper.RowMapperFactory;
 import com.example.afs.jamming.sound.Composable;
-import com.example.afs.jamming.sound.Converter;
+import com.example.afs.jamming.utility.IterableArray;
 
 public class Scene {
 
   private List<Block> blocks;
+  private BufferedImage image;
+  private MappedBlock[] mappedBlocks;
+  private int mappedWidth;
+  private int maximumItemHeight;
   private Options options;
-  private int program;
-  private RowMapper rowMapper;
   private Sequence sequence;
 
-  public Scene(Options options, BufferedImage image, int loopCount) {
+  public Scene(Options options, BufferedImage image) {
     this.options = options;
-    this.blocks = getBlocks(image, loopCount);
-    this.program = options.getMidiProgram();
-    this.rowMapper = RowMapperFactory.getRowMapper(options, image);
+    this.image = image;
+    extractBlocks();
+    extractMappedBlocks();
   }
 
   public boolean containsBlocks() {
     return blocks.size() > 0;
   }
 
+  public List<Block> getBlocks() {
+    return blocks;
+  }
+
+  public Iterable<MappedBlock> getMappedBlocks() {
+    return new IterableArray<MappedBlock>(mappedBlocks);
+  }
+
+  public int getMappedWidth() {
+    return mappedWidth;
+  }
+
+  public int getMaximumItemHeight() {
+    return maximumItemHeight;
+  }
+
   public Sequence getSequence() {
-    if (sequence == null || options.isMidiProgramLoop()) {
-      Converter converter = new Converter(options.getMidiTickOrigin(), options.getMidiVelocity(), rowMapper, options.getTrace());
-      sequence = converter.convert(blocks, 250, options.getMidiChannel(), program);
-      if (options.isMidiProgramLoop()) {
-        program = (program + 1) % 127;
-        if (options.getTrace().isSet(TraceOption.CONVERSION)) {
-          System.out.println("Looping to program " + program);
-        }
-      }
-    }
     return sequence;
   }
 
   public boolean isDifferentFrom(Scene that) {
     boolean isDifferent = true;
-    if (that != null && !options.isMidiProgramLoop()) {
+    if (that != null) {
       if (that.blocks.size() == this.blocks.size()) {
         Iterator<Block> oldIterator = that.blocks.iterator();
         Iterator<Block> newIterator = this.blocks.iterator();
@@ -84,6 +93,11 @@ public class Scene {
     return isDifferent;
   }
 
+  @Override
+  public String toString() {
+    return "Scene [mappedWidth=" + mappedWidth + ", maximumItemHeight=" + maximumItemHeight + "]";
+  }
+
   private Block convertItemToBlock(ImageProcessor imageProcessor, Item item) {
     int averageRgb = imageProcessor.getAverageRgb(item);
     if (options.isDisplayImage()) {
@@ -98,47 +112,62 @@ public class Scene {
     if (options.getObjectMinimumSize() > 0) {
       int despeckleCount = imageProcessor.despeckle(items, options.getObjectMinimumSize());
       if (options.getTrace().isSet(TraceOption.DESPECKLING)) {
-        System.out.println("Despeckling removed " + despeckleCount + " speckles");
-        displayInfo("After despeckling", items);
+        displayInfo("After despeckling there are " + items.size() + " item(s) present (" + despeckleCount + " speckle(s) removed)", items);
       }
     }
   }
 
-  private void displayBlockInfo(List<Block> blocks) {
-    if (options.getTrace().isSet(TraceOption.OUTPUT)) {
-      ArrayList<Block> sortedBlocks = new ArrayList<>(blocks);
-      sortedBlocks.sort(new Comparator<Block>() {
-        @Override
-        public int compare(Block o1, Block o2) {
-          return o1.getItem().getLeft() - o2.getItem().getLeft();
-        }
-      });
-      displayInfo("After mapping and sorting:", sortedBlocks);
-    }
-  }
-
-  private void displayInfo(String message, List<?> items) {
+  private void displayInfo(String message, Iterable<?> items) {
     System.out.println(message);
-    System.out.println("There are " + items.size() + " item(s) present");
     for (Object item : items) {
       System.out.println(item);
     }
   }
 
-  private List<Block> getBlocks(BufferedImage image, int loopCount) {
+  private void extractBlocks() {
     ImageProcessor imageProcessor = new ImageProcessor(image, options);
     List<Item> items = imageProcessor.extractItems();
     if (options.getTrace().isSet(TraceOption.INPUT)) {
-      displayInfo("Original image", items);
+      displayInfo("In the original image, there are " + items.size() + " item(s) present", items);
     }
     despeckleItems(imageProcessor, items);
-    List<Block> blocks = new LinkedList<>();
+    blocks = new LinkedList<>();
     for (Item item : items) {
+      maximumItemHeight = Math.max(maximumItemHeight, item.getHeight());
       Block block = convertItemToBlock(imageProcessor, item);
       blocks.add(block);
     }
-    displayBlockInfo(blocks);
-    return blocks;
+    if (options.getTrace().isSet(TraceOption.OUTPUT)) {
+      displayInfo("After color conversion, there are " + blocks.size() + " block(s) present", blocks);
+    }
+  }
+
+  private void extractMappedBlocks() {
+    int positionIndex = 0;
+    mappedBlocks = new MappedBlock[blocks.size()];
+    RowMapper rowMapper = RowMapperFactory.getRowMapper(options, image);
+    for (Block block : blocks) {
+      mappedBlocks[positionIndex++] = rowMapper.getPosition(block);
+    }
+    Arrays.sort(mappedBlocks, new Comparator<MappedBlock>() {
+      @Override
+      public int compare(MappedBlock o1, MappedBlock o2) {
+        int deltaRow = o1.getRow() - o2.getRow();
+        if (deltaRow != 0) {
+          return deltaRow;
+        }
+        int deltaLeft = o1.getLeft() - o2.getLeft();
+        if (deltaLeft != 0) {
+          return deltaLeft;
+        }
+        return 0;
+      }
+    });
+    mappedWidth = rowMapper.getMappedWidth();
+    if (options.getTrace().isSet(TraceOption.MAPPING)) {
+      displayInfo("After row mapping, there are " + blocks.size() + " block(s) present", getMappedBlocks());
+    }
+
   }
 
 }

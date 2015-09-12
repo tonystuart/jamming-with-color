@@ -9,7 +9,6 @@
 
 package com.example.afs.jamming.sound;
 
-
 public class Sound implements Composable {
 
   private String name;

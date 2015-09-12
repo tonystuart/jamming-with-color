@@ -20,14 +20,14 @@ public class SingleRowMapper implements RowMapper {
   }
 
   @Override
-  public Limits getLimits(Block block) {
-    return new Limits(0, block.getItem().getLeft(), block.getItem().getRight());
+  public int getMappedWidth() {
+    return width;
+
   }
 
   @Override
-  public int getTotalWidth() {
-    return width;
-
+  public MappedBlock getPosition(Block block) {
+    return new MappedBlock(block, 0, block.getItem().getLeft(), block.getItem().getRight());
   }
 
 }

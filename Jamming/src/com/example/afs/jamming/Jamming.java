@@ -12,15 +12,25 @@ package com.example.afs.jamming;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.imageio.ImageIO;
+import javax.sound.midi.Sequence;
 
+import com.example.afs.jamming.command.Command;
 import com.example.afs.jamming.command.CommandLineParser;
+import com.example.afs.jamming.command.MidiChannelCommand;
+import com.example.afs.jamming.command.MidiProgramCommand;
+import com.example.afs.jamming.command.MidiTempoFactorCommand;
+import com.example.afs.jamming.command.Monitor;
 import com.example.afs.jamming.command.Options;
 import com.example.afs.jamming.command.RaspistillWatcher;
 import com.example.afs.jamming.command.Trace.TraceOption;
+import com.example.afs.jamming.image.Frame;
 import com.example.afs.jamming.image.ImageViewer;
 import com.example.afs.jamming.image.Scene;
+import com.example.afs.jamming.sound.Converter;
 import com.example.afs.jamming.sound.Player;
 
 public class Jamming {
@@ -30,43 +40,98 @@ public class Jamming {
     Options options = parser.parseOptions(args);
     Jamming jamming = new Jamming(options);
     jamming.jam();
+    System.exit(0);
   }
 
   private ImageViewer afterImageViewer;
   private ImageViewer beforeImageViewer;
+  private int loopCount;
+  private int midiChannel;
+  private int midiProgram;
+  private boolean midiProgramLoop;
+  private float midiTempoFactor;
+  private Monitor monitor;
   private Options options;
   private Player player;
+  private Frame previousFrame;
+
+  private BlockingQueue<Command> queue;
   private RaspistillWatcher raspistillWatcher;
 
   public Jamming(Options options) {
     this.options = options;
+    midiChannel = options.getMidiChannel();
+    midiProgram = options.getMidiProgram();
+    midiTempoFactor = options.getMidiTempoFactor();
+    midiProgramLoop = options.isMidiProgramLoop();
     if (options.isDisplayImage()) {
       beforeImageViewer = new ImageViewer();
       afterImageViewer = new ImageViewer();
     }
     raspistillWatcher = new RaspistillWatcher(options);
+    queue = new LinkedBlockingQueue<>();
+    player = new Player(queue, midiTempoFactor);
+    monitor = new Monitor(queue);
+    monitor.start();
   }
 
   public void jam() {
-    int loopCount = 0;
-    Scene oldScene = null;
-    for (;;) {
-      String filename = raspistillWatcher.takePhoto();
-      BufferedImage image = getImage(filename, loopCount);
-      if (options.isDisplayImage()) {
-        beforeImageViewer.display(image, "Before " + loopCount);
+    boolean isRunning = true;
+    boolean isPlaying = true;
+    processFrame();
+    while (isRunning) {
+      Command command = getNextCommand();
+      switch (command.getEvent()) {
+        case CALIBRATE:
+          calibrate();
+          break;
+        case CHANNEL:
+          midiChannel = ((MidiChannelCommand) command).getMidiChannel();
+          break;
+        case END_OF_TRACK:
+          if (isPlaying) {
+            processFrame();
+          }
+          break;
+        case LOOP:
+          midiProgramLoop = !midiProgramLoop;
+          break;
+        case NEXT:
+          player.stop();
+          processFrame();
+          break;
+        case PAUSE:
+          isPlaying = false;
+          player.stop();
+          break;
+        case PROGRAM:
+          midiProgram = ((MidiProgramCommand) command).getMidiProgram();
+          break;
+        case QUIT:
+          isRunning = false;
+          player.close();
+          break;
+        case RESUME:
+          isPlaying = true;
+          player.stop();
+          processFrame();
+          break;
+        case TEMPO:
+          midiTempoFactor = ((MidiTempoFactorCommand) command).getMidiTempoFactor();
+          player.setTempoFactor(midiTempoFactor);
+          break;
+        default:
+          throw new UnsupportedOperationException(command.toString());
       }
-      Scene newScene = new Scene(options, image, loopCount);
-      if (newScene.isDifferentFrom(oldScene)) {
-        if (options.isDisplayImage()) {
-          afterImageViewer.display(image, "After " + loopCount);
-        }
-        playScene(newScene);
-        oldScene = newScene;
-      } else {
-        playScene(oldScene);
-      }
-      loopCount++;
+    };
+  }
+
+  private void calibrate() {
+    processFrame();
+    options.getColorMap().calibrate(previousFrame.getScene().getMappedBlocks());
+    if (options.getTrace().isSet(TraceOption.CALIBRATE)) {
+      System.out.println("New color map calibration");
+      System.out.println(options.getColorMap());
     }
   }
 
@@ -84,19 +149,49 @@ public class Jamming {
     return image;
   }
 
-  private Player getPlayer() {
-    if (player == null) {
-      player = new Player(options.getMidiTempoFactor());
+  private int getMidiProgram() {
+    if (midiProgramLoop) {
+      midiProgram = (midiProgram + 1) % 127;
     }
-    return player;
+    return midiProgram;
   }
 
-  private void playScene(Scene scene) {
+  private Command getNextCommand() {
+    try {
+      return queue.take();
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private void play(Frame frame) {
     if (options.isPlayAudio()) {
+      Scene scene = frame.getScene();
       if (scene.containsBlocks()) {
-        getPlayer().play(scene);
+        Converter converter = new Converter(options, frame.getMidiChannel(), frame.getMidiProgram());
+        Sequence sequence = converter.convert(scene);
+        player.play(sequence);
       }
     }
   }
 
+  private void processFrame() {
+    String filename = raspistillWatcher.takePhoto();
+    BufferedImage image = getImage(filename, loopCount);
+    if (options.isDisplayImage()) {
+      beforeImageViewer.display(image, "Before " + loopCount);
+    }
+    Scene scene = new Scene(options, image);
+    Frame currentFrame = new Frame(scene, midiChannel, getMidiProgram());
+    if (currentFrame.isDifferentFrom(previousFrame)) {
+      if (options.isDisplayImage()) {
+        afterImageViewer.display(image, "After " + loopCount);
+      }
+      play(currentFrame);
+      previousFrame = currentFrame;
+    } else {
+      play(previousFrame);
+    }
+    loopCount++;
+  }
 }

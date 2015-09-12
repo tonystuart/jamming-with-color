@@ -9,7 +9,6 @@
 
 package com.example.afs.jamming.sound;
 
-
 public interface Composable {
 
   void addToTrack(TrackBuilder trackBuilder, long tick, int channel, int velocity, int duration);

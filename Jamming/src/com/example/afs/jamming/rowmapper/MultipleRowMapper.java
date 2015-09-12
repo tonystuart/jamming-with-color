@@ -23,18 +23,18 @@ public class MultipleRowMapper implements RowMapper {
   }
 
   @Override
-  public Limits getLimits(Block block) {
+  public int getMappedWidth() {
+    return (currentRow + 1) * width;
+  }
+
+  @Override
+  public MappedBlock getPosition(Block block) {
     if (currentRow == -1 || block.getItem().getTop() > (currentBottom + rowSpacing)) {
       currentRow++;
     }
     currentBottom = Math.max(currentBottom, block.getItem().getBottom());
     int left = (currentRow * width) + (block.getItem().getLeft() % width);
     int right = (currentRow * width) + (block.getItem().getRight() % width);
-    return new Limits(currentRow, left, right);
-  }
-
-  @Override
-  public int getTotalWidth() {
-    return (currentRow + 1) * width;
+    return new MappedBlock(block, currentRow, left, right);
   }
 }

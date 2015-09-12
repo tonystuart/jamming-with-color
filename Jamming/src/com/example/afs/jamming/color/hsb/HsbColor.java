@@ -17,15 +17,15 @@ public class HsbColor extends Color {
   private float hue;
   private float saturation;
 
-  public HsbColor(int rgb) {
-    this(null, rgb);
-  }
-
-  public HsbColor(int hue, int saturation, int brightness) {
+  public HsbColor(float hue, float saturation, float brightness) {
     super(0);
     this.hue = hue;
     this.saturation = saturation;
     this.brightness = brightness;
+  }
+
+  public HsbColor(int rgb) {
+    this(null, rgb);
   }
 
   public HsbColor(String name, int rgb) {

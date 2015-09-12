@@ -7,17 +7,24 @@
 // This program is made available on an "as is" basis, without
 // warranties or conditions of any kind, either express or implied.
 
-package com.example.afs.jamming.color.base;
+package com.example.afs.jamming.command;
 
-public abstract class BaseColorMap implements ColorMap {
+public class MidiChannelCommand extends Command {
 
-  @Override
-  public String getName() {
-    return getClass().getSimpleName();
+  private int midiChannel;
+
+  public MidiChannelCommand(int midiChannel) {
+    super(Event.CHANNEL);
+    this.midiChannel = midiChannel;
   }
 
+  public int getMidiChannel() {
+    return midiChannel;
+  }
+
+  @Override
   public String toString() {
-    return getName();
+    return "MidiChannelCommand [midiChannel=" + midiChannel + "]";
   }
 
 }
