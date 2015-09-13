@@ -13,15 +13,13 @@ import com.example.afs.jamming.color.rgb.Color;
 
 public class HsbColor extends Color {
 
-  private float brightness;
-  private float hue;
-  private float saturation;
+  private float[] hsbValues = new float[3];
 
   public HsbColor(float hue, float saturation, float brightness) {
-    super(0);
-    this.hue = hue;
-    this.saturation = saturation;
-    this.brightness = brightness;
+    super(java.awt.Color.HSBtoRGB(hue, saturation, brightness) & 0xffffff); // mask off alpha channel
+    hsbValues[0] = hue;
+    hsbValues[1] = saturation;
+    hsbValues[2] = brightness;
   }
 
   public HsbColor(int rgb) {
@@ -30,52 +28,24 @@ public class HsbColor extends Color {
 
   public HsbColor(String name, int rgb) {
     super(name, rgb);
-
-    int componentMax = (red > green) ? (blue > red ? blue : red) : (blue > green ? blue : green);
-    int componentMin = (red < green) ? (blue < red ? blue : red) : (blue < green ? blue : green);
-
-    brightness = (100 * componentMax) / 255;
-    int range = componentMax - componentMin;
-    if (componentMax != 0) {
-      saturation = (100 * range) / componentMax;
-    } else {
-      saturation = 0;
-    }
-    if (saturation == 0) {
-      hue = 0;
-    } else {
-      float deltaMaxRed = (100 * (componentMax - red)) / range;
-      float deltaMaxGreen = (100 * (componentMax - green)) / range;
-      float deltaMaxBlue = (100 * (componentMax - blue)) / range;
-      if (red == componentMax) {
-        hue = deltaMaxBlue - deltaMaxGreen;
-      } else if (green == componentMax) {
-        hue = 200 + deltaMaxRed - deltaMaxBlue;
-      } else {
-        hue = 400 + deltaMaxGreen - deltaMaxRed;
-      }
-      hue = hue / 6;
-      if (hue < 0) {
-        hue = hue + 100;
-      }
-    }
+    java.awt.Color.RGBtoHSB(red, green, blue, hsbValues);
   }
 
   public float getBrightness() {
-    return brightness;
+    return hsbValues[2];
   }
 
   public float getHue() {
-    return hue;
+    return hsbValues[0];
   }
 
   public float getSaturation() {
-    return saturation;
+    return hsbValues[1];
   }
 
   @Override
   public String toString() {
-    String s = String.format("%06x %.1f/%.1f/%.1f", getRgb(), hue, saturation, brightness);
+    String s = String.format("%06x %.2f/%.2f/%.2f", getRgb(), hsbValues[0], hsbValues[1], hsbValues[2]);
     String name = getName();
     if (name != null) {
       s += " (" + name + ")";

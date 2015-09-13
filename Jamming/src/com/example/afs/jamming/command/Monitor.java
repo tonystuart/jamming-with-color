@@ -39,6 +39,8 @@ public class Monitor extends Thread {
           command = new MidiChannelCommand(Integer.parseInt(tokens[1]));
         } else if (tokens.length == 1 && tokens[0].startsWith("l")) {
           command = new Command(Event.LOOP);
+        } else if (tokens.length == 1 && tokens[0].startsWith("m")) {
+          command = new Command(Event.MAP);
         } else if (tokens.length == 1 && tokens[0].startsWith("n")) {
           command = new Command(Event.NEXT);
         } else if (tokens.length == 1 && tokens[0].startsWith("pa")) {
@@ -55,6 +57,7 @@ public class Monitor extends Thread {
           System.out.println("Calibrate   - calibrate color map");
           System.out.println("Channel <i> - select midi channel <i> (zero based)");
           System.out.println("Loop        - toggle loop through midi programs");
+          System.out.println("Map         - display current color map");
           System.out.println("Next        - stop current frame and play next");
           System.out.println("Pause       - pause play until resume");
           System.out.println("Program <i> - select midi program <i>");

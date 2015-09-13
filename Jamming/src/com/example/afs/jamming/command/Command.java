@@ -11,7 +11,7 @@ package com.example.afs.jamming.command;
 
 public class Command {
   public enum Event {
-    CALIBRATE, CHANNEL, END_OF_TRACK, LOOP, NEXT, PAUSE, PROGRAM, QUIT, RESUME, TEMPO
+    CALIBRATE, CHANNEL, END_OF_TRACK, LOOP, MAP, NEXT, PAUSE, PROGRAM, QUIT, RESUME, TEMPO
   }
 
   private Event event;

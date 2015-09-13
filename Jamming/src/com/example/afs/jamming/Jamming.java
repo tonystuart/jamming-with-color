@@ -97,6 +97,9 @@ public class Jamming {
         case LOOP:
           midiProgramLoop = !midiProgramLoop;
           break;
+        case MAP:
+          displayColorMap();
+          break;
         case NEXT:
           player.stop();
           processFrame();
@@ -127,13 +130,14 @@ public class Jamming {
     };
   }
 
+  private void displayColorMap() {
+    System.out.println("Current color map");
+    System.out.println(options.getColorMap());
+  }
+
   private void calibrate() {
     processFrame();
     options.getColorMap().calibrate(previousFrame.getScene().getMappedBlocks());
-    if (options.getTrace().isSet(TraceOption.CALIBRATE)) {
-      System.out.println("New color map calibration");
-      System.out.println(options.getColorMap());
-    }
   }
 
   private BufferedImage getImage(String fileName, int loopCount) {

@@ -46,25 +46,25 @@ public abstract class HsbColorMap extends BaseColorMap {
 
   @Override
   public void calibrate(Iterable<MappedBlock> mappedBlocks) {
-    Set<HsbColor> newCalibratedColorSet = new TreeSet<>(new ColorMapComparator());
+    Set<HsbColor> newColorSet = new TreeSet<>(new ColorMapComparator());
     for (MappedBlock mappedBlock : mappedBlocks) {
-      newCalibratedColorSet.add(new HsbColor(mappedBlock.getBlock().getAverageRgb()));
+      // TODO: ensure that high valued reds are assigned the first position in the map
+      newColorSet.add(new HsbColor(mappedBlock.getBlock().getAverageRgb()));
     }
-    if (newCalibratedColorSet.size() != colorMap.size()) {
-      System.err.println("Cannot calibrate color map: expected " + colorMap.size() + " item(s), found " + newCalibratedColorSet.size() + " item(s)");
+    if (newColorSet.size() != colorMap.size()) {
+      System.err.println("Cannot calibrate color map: expected " + colorMap.size() + " item(s), found " + newColorSet.size() + " item(s)");
     } else {
-      TreeMap<HsbColor, Composable> newCalibratedColorMap = new TreeMap<>(new ColorMapComparator());
-      Iterator<HsbColor> newCalibratedColorSetIterator = newCalibratedColorSet.iterator();
+      TreeMap<HsbColor, Composable> newColorMap = new TreeMap<>(new ColorMapComparator());
+      Iterator<HsbColor> newColorSetIterator = newColorSet.iterator();
       Iterator<Entry<HsbColor, Composable>> oldColorMapIterator = colorMap.entrySet().iterator();
-      while (newCalibratedColorSetIterator.hasNext() && oldColorMapIterator.hasNext()) {
-        HsbColor newCalibratedColor = newCalibratedColorSetIterator.next();
-        float hue = newCalibratedColor.getHue();
-        hue += 2; // to include new calibrated color in map
-        HsbColor newColor = new HsbColor(hue, newCalibratedColor.getSaturation(), newCalibratedColor.getBrightness());
+      while (newColorSetIterator.hasNext() && oldColorMapIterator.hasNext()) {
+        HsbColor newColor = newColorSetIterator.next();
+        float hue = newColor.getHue() + 0.02f; // so new color is less than ceiling entry
+        HsbColor adjustedColor = new HsbColor(hue, newColor.getSaturation(), newColor.getBrightness());
         Entry<HsbColor, Composable> oldColorMapEntry = oldColorMapIterator.next();
-        newCalibratedColorMap.put(newColor, oldColorMapEntry.getValue());
+        newColorMap.put(adjustedColor, oldColorMapEntry.getValue());
       }
-      colorMap = newCalibratedColorMap;
+      colorMap = newColorMap;
     }
 
   }
@@ -84,12 +84,11 @@ public abstract class HsbColorMap extends BaseColorMap {
     StringBuilder s = new StringBuilder();
     s.append("name=");
     s.append(getName());
-    s.append("\n");
     for (Entry<HsbColor, Composable> entry : colorMap.entrySet()) {
+      s.append("\n");
       s.append(entry.getKey());
       s.append(" ");
       s.append(entry.getValue());
-      s.append("\n");
     }
     return s.toString();
   }
