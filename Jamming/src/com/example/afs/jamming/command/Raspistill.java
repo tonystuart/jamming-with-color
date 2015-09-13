@@ -235,8 +235,7 @@ public class Raspistill {
 
   public void takePhoto() {
     try {
-      process.getOutputStream().write("\n".getBytes());
-      process.getOutputStream().flush();
+      sendCommand("\n");
     } catch (IOException e) {
       if (!process.isAlive()) {
         throw new IllegalStateException("The image capture program terminated with a status of " + process.exitValue());
@@ -247,9 +246,15 @@ public class Raspistill {
 
   public void terminate() {
     try {
-      process.getOutputStream().write("X\n".getBytes());
+      System.out.println("Terminating image capture program");
+      sendCommand("X\n");
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  private void sendCommand(String message) throws IOException {
+    process.getOutputStream().write(message.getBytes());
+    process.getOutputStream().flush();
   }
 }

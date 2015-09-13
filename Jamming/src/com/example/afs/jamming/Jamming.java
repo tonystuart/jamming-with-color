@@ -29,6 +29,7 @@ import com.example.afs.jamming.command.RaspistillWatcher;
 import com.example.afs.jamming.command.Trace.TraceOption;
 import com.example.afs.jamming.image.Frame;
 import com.example.afs.jamming.image.ImageViewer;
+import com.example.afs.jamming.image.ImageViewer.Availability;
 import com.example.afs.jamming.image.Scene;
 import com.example.afs.jamming.sound.Converter;
 import com.example.afs.jamming.sound.Player;
@@ -179,13 +180,13 @@ public class Jamming {
     String filename = raspistillWatcher.takePhoto();
     BufferedImage image = getImage(filename, loopCount);
     if (options.isDisplayImage()) {
-      beforeImageViewer.display(image, "Before " + loopCount);
+      beforeImageViewer.display(image, "Before " + loopCount, Availability.TRANSIENT);
     }
     Scene scene = new Scene(options, image);
     Frame currentFrame = new Frame(scene, midiChannel, getMidiProgram());
     if (currentFrame.isDifferentFrom(previousFrame)) {
       if (options.isDisplayImage()) {
-        afterImageViewer.display(image, "After " + loopCount);
+        afterImageViewer.display(image, "After " + loopCount, Availability.PERSISTENT);
       }
       play(currentFrame);
       previousFrame = currentFrame;
@@ -194,4 +195,5 @@ public class Jamming {
     }
     loopCount++;
   }
+
 }

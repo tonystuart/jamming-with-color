@@ -58,12 +58,9 @@ public class CommandLineParser {
           } else if (tokens.length == 2 && tokens[0].equals("--isPlayAudio")) {
             options.setPlayAudio(Boolean.valueOf(tokens[1]));
           } else if (tokens.length == 2 && tokens[0].equals("--isVerbose")) {
-            options.setVerbose(Boolean.valueOf(tokens[1]));
-            if (options.isVerbose()) {
-              options.getTrace().setAll();
-            } else {
-              options.getTrace().clearAll();
-            }
+            setVerbose(options, Boolean.valueOf(tokens[1]));
+          } else if (tokens.length == 2 && tokens[0].equals("--midiBaseVelocity")) {
+            options.setMidiBaseVelocity(Integer.parseInt(tokens[1]));
           } else if (tokens.length == 2 && tokens[0].equals("--midiChannel")) {
             options.setMidiChannel(Integer.parseInt(tokens[1]));
           } else if (tokens.length == 2 && tokens[0].equals("--midiProgram")) {
@@ -72,8 +69,6 @@ public class CommandLineParser {
             options.setMidiTempoFactor(Float.parseFloat(tokens[1]));
           } else if (tokens.length == 2 && tokens[0].equals("--midiTickOrigin")) {
             options.setMidiTickOrigin(TickOrigin.valueOf(tokens[1]));
-          } else if (tokens.length == 2 && tokens[0].equals("--midiVelocity")) {
-            options.setMidiVelocity(Integer.parseInt(tokens[1]));
           } else if (tokens.length == 2 && tokens[0].equals("--objectFuzziness")) {
             options.setObjectFuzziness(Integer.parseInt(tokens[1]));
           } else if (tokens.length == 2 && tokens[0].equals("--objectMinimumSize")) {
@@ -104,7 +99,7 @@ public class CommandLineParser {
     System.err.println("Where: options is one or more of the following:");
     System.err.println("       --backgroundCondition=" + getOptions(Background.class) + " (defaults to " + options.getBackgroundCondition() + ")");
     System.err.println("       --backgroundThreshold=hex-rgb-value (defaults to " + Integer.toHexString(options.getBackgroundThreshold()) + ")");
-    System.err.println("       --colorMap=color map (defaults to " + options.getColorMap() + ")");
+    System.err.println("       --colorMap=color map (defaults to " + options.getColorMap().getName() + ")");
     System.err.println("       --imageBaseFilename=name (defaults to " + options.getImageBaseFilename() + ")");
     System.err.println("       --imageBrightness=0-100 (defaults to " + options.getImageBrightness() + ")");
     System.err.println("       --imageCaptureProgram=path (defaults to " + options.getImageCaptureProgram() + ")");
@@ -115,17 +110,17 @@ public class CommandLineParser {
     System.err.println("       --imageWidth=0-2592 pixels (defaults to " + options.getImageWidth() + ")");
     System.err.println("       --isDisplayImage=false|true (defaults to " + options.isDisplayImage() + ")");
     System.err.println("       --isPlayAudio=false|true (defaults to " + options.isPlayAudio() + ")");
-    System.err.println("       --isVerbose=false|true (clears/sets all trace flags, defaults to " + options.isVerbose() + ")");
+    System.err.println("       --isVerbose=false|true (defaults to " + options.isVerbose() + ", clears/sets all trace flags)");
+    System.err.println("       --midiBaseVelocity=1-127 (defaults to " + options.getMidiBaseVelocity() + ", audio volume, lower numbers permit greater dynamic range)");
     System.err.println("       --midiChannel=channel (defaults to " + options.getMidiChannel() + ")");
     System.err.println("       --midiProgram=midi program number (defaults to " + options.getMidiProgram() + ")");
     System.err.println("       --midiTempoFactor=0.0-1.0 (defaults to " + options.getMidiTempoFactor() + ")");
     System.err.println("       --midiTickOrigin=" + getOptions(TickOrigin.class) + " (defaults to " + options.getMidiTickOrigin() + ")");
-    System.err.println("       --midiVelocity=1-127 (defaults to " + options.getMidiVelocity() + ")");
     System.err.println("       --objectFuzziness=min pixel delta between items in successive frames (defaults to " + options.getObjectFuzziness() + ")");
     System.err.println("       --objectMinimizeSize=max-speckle-size (defaults to " + options.getObjectMinimumSize() + ")");
     System.err.println("       --rowSpacing=pixels between rows (defaults to " + options.getRowSpacing() + ", zero to disable multiple rows)");
     System.err.println("       --threads=image-processing-threads (defaults to " + options.getThreads() + ", zero to default to number of processors)");
-    System.err.println("       --trace=" + getOptions(TraceOption.class) + " (may be specified more than once, defaults to " + options.getTrace() + ")");
+    System.err.println("       --trace=" + getOptions(TraceOption.class) + " (defaults to " + options.getTrace() + ", may be specified more than once)");
     System.err.println("Supported color maps:");
     for (String name : ColorMaps.getSingleton().getNames()) {
       System.err.println("       " + name);
@@ -142,5 +137,14 @@ public class CommandLineParser {
       s.append(option.name());
     }
     return s.toString();
+  }
+
+  private void setVerbose(Options options, Boolean isVerbose) {
+    options.setVerbose(isVerbose);
+    if (options.isVerbose()) {
+      options.getTrace().setAll();
+    } else {
+      options.getTrace().clearAll();
+    }
   }
 }

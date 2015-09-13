@@ -11,17 +11,21 @@ package com.example.afs.jamming.image;
 
 import java.awt.BorderLayout;
 import java.awt.Graphics;
-import java.awt.Image;
+import java.awt.image.BufferedImage;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 public class ImageViewer extends JFrame {
 
-  public static class ImagePanel extends JPanel {
-    private Image image;
+  public enum Availability {
+    PERSISTENT, TRANSIENT
+  }
 
-    public void display(Image image) {
+  public static class ImagePanel extends JPanel {
+    private BufferedImage image;
+
+    public void display(BufferedImage image) {
       this.image = image;
       setSize(image.getWidth(null), image.getHeight(null));
       repaint();
@@ -41,7 +45,10 @@ public class ImageViewer extends JFrame {
     getContentPane().add(imagePanel, BorderLayout.CENTER);
   }
 
-  public void display(Image image, String title) {
+  public void display(BufferedImage image, String title, Availability availability) {
+    if (availability == Availability.TRANSIENT) {
+      image = copyImage(image);
+    }
     imagePanel.display(image);
     setSize(imagePanel.getSize());
     setTitle(title + " - " + image.getWidth(null) + "x" + image.getHeight(null));
@@ -52,6 +59,14 @@ public class ImageViewer extends JFrame {
   @Override
   public void toFront() {
     // Disable default action to prevent distracting window switch
+  }
+
+  private BufferedImage copyImage(BufferedImage source) {
+    BufferedImage image = new BufferedImage(source.getWidth(), source.getHeight(), source.getType());
+    Graphics graphics = image.getGraphics();
+    graphics.drawImage(source, 0, 0, null);
+    graphics.dispose();
+    return image;
   }
 
 }
