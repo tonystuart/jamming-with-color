@@ -25,15 +25,17 @@ public class Converter {
     LEFT, MIDPOINT
   }
 
+  public static final int DRUM_CHANNEL = 9;
+  public static final int MAXIMUM_VELOCITY = 127;
+  public static final int STANDARD_DRUM_KIT = 1;
   public static final int TICKS_PER_BEAT = 250;
-  private static final int MAXIMUM_VELOCITY = 127;
 
   private int midiChannel;
   private int midiProgram;
-  private TickOrigin tickOrigin;
+  private Options options;
 
   public Converter(Options options, int midiChannel, int midiProgram) {
-    this.tickOrigin = options.getMidiTickOrigin();
+    this.options = options;
     this.midiChannel = midiChannel;
     this.midiProgram = midiProgram;
     if (options.getTrace().isSet(TraceOption.CONVERSION)) {
@@ -52,7 +54,7 @@ public class Converter {
         int right = mappedBlock.getRight();
         int duration;
         long tick;
-        switch (tickOrigin) {
+        switch (options.getMidiTickOrigin()) {
           case LEFT:
             duration = right - left;
             tick = left;
@@ -62,7 +64,7 @@ public class Converter {
             tick = left + duration;
             break;
           default:
-            throw new UnsupportedOperationException(tickOrigin.toString());
+            throw new UnsupportedOperationException();
         }
         int velocity = scaleVelocity(scene.getMaximumItemHeight(), mappedBlock.getBlock().getItem().getHeight());
         mappedBlock.getBlock().getComposable().addToTrack(trackBuilder, tick, midiChannel, velocity, duration);
@@ -80,8 +82,9 @@ public class Converter {
   }
 
   private int scaleVelocity(int maximumItemHeight, int itemHeight) {
-    int midVelocity = MAXIMUM_VELOCITY / 2;
-    int scaledVelocity = midVelocity + ((midVelocity * itemHeight) / maximumItemHeight);
+    int baseMidiVelocity = options.getMidiBaseVelocity();
+    int dynamicVelocityRange = MAXIMUM_VELOCITY - baseMidiVelocity;
+    int scaledVelocity = baseMidiVelocity + ((dynamicVelocityRange * itemHeight) / maximumItemHeight);
     return scaledVelocity;
   }
 

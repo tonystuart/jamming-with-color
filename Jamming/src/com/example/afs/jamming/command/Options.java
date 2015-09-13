@@ -15,12 +15,10 @@ import com.example.afs.jamming.color.rgb.Color;
 import com.example.afs.jamming.command.Raspistill.WhiteBalance;
 import com.example.afs.jamming.command.Trace.TraceOption;
 import com.example.afs.jamming.image.ItemFinder.Background;
+import com.example.afs.jamming.sound.Converter;
 import com.example.afs.jamming.sound.Converter.TickOrigin;
 
 public class Options {
-
-  public static final int DRUM_CHANNEL = 9;
-  public static final int STANDARD_DRUM_KIT = 1;
 
   private Background backgroundCondition = Background.LESS_THAN;
   private int backgroundThreshold = Color.getColor(64, 64, 64);
@@ -37,11 +35,11 @@ public class Options {
   private boolean isMidiProgramLoop = false;
   private boolean isPlayAudio = true;
   private boolean isVerbose = false;
-  private int midiChannel = DRUM_CHANNEL;
-  private int midiProgram = STANDARD_DRUM_KIT;
+  private int midiBaseVelocity = Converter.MAXIMUM_VELOCITY / 2;
+  private int midiChannel = 0;
+  private int midiProgram = 1;
   private float midiTempoFactor = 1.0f;
   private TickOrigin midiTickOrigin = TickOrigin.MIDPOINT;
-  private int midiVelocity = 127;
   private int objectFuzziness = 10;
   private int objectMinimumSize = 30;
   private int rowSpacing = 0;
@@ -100,6 +98,10 @@ public class Options {
     return imageWidth;
   }
 
+  public int getMidiBaseVelocity() {
+    return midiBaseVelocity;
+  }
+
   public int getMidiChannel() {
     return midiChannel;
   }
@@ -114,10 +116,6 @@ public class Options {
 
   public TickOrigin getMidiTickOrigin() {
     return midiTickOrigin;
-  }
-
-  public int getMidiVelocity() {
-    return midiVelocity;
   }
 
   public int getObjectFuzziness() {
@@ -204,6 +202,10 @@ public class Options {
     this.imageWidth = imageWidth;
   }
 
+  public void setMidiBaseVelocity(int velocity) {
+    this.midiBaseVelocity = velocity;
+  }
+
   public void setMidiChannel(int channel) {
     this.midiChannel = channel;
   }
@@ -222,10 +224,6 @@ public class Options {
 
   public void setMidiTickOrigin(TickOrigin tickOrigin) {
     this.midiTickOrigin = tickOrigin;
-  }
-
-  public void setMidiVelocity(int velocity) {
-    this.midiVelocity = velocity;
   }
 
   public void setObjectFuzziness(int fuzziness) {

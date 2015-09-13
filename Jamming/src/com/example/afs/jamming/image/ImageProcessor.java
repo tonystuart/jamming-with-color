@@ -76,9 +76,9 @@ public class ImageProcessor {
       if (options.getTrace().isSet(TraceOption.PERFORMANCE)) {
         long finishTimeNs = System.nanoTime();
         long elapsedTimeNs = finishTimeNs - startTimeNs;
-        long elaspedTimeMs = TimeUnit.NANOSECONDS.toMillis(elapsedTimeNs);
+        long elapsedTimeMs = TimeUnit.NANOSECONDS.toMillis(elapsedTimeNs);
         long pixelCount = (long) image.getWidth() * (long) image.getHeight();
-        System.out.println("Processed " + pixelCount + " pixels in " + elaspedTimeMs + " milliseconds using " + threadCount + " thread(s)");
+        System.out.println("Processed " + pixelCount + " pixels in " + elapsedTimeMs + " milliseconds using " + threadCount + " thread(s)");
       }
     }
   }
@@ -137,7 +137,6 @@ public class ImageProcessor {
     int totalGreen = 0;
     int totalBlue = 0;
     int totalPixels = 0;
-    // Pass 1: calculate average
     for (Extent extent : item.getExtents()) {
       int endX = extent.getEndX();
       int y = extent.getY();
