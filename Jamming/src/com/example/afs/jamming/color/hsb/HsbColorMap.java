@@ -10,15 +10,11 @@
 package com.example.afs.jamming.color.hsb;
 
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import com.example.afs.jamming.color.base.BaseColorMap;
 import com.example.afs.jamming.color.rgb.Color;
-import com.example.afs.jamming.rowmapper.MappedBlock;
 import com.example.afs.jamming.sound.Composable;
 
 public abstract class HsbColorMap extends BaseColorMap {
@@ -45,28 +41,18 @@ public abstract class HsbColorMap extends BaseColorMap {
   }
 
   @Override
-  public void calibrate(Iterable<MappedBlock> mappedBlocks) {
-    Set<HsbColor> newColorSet = new TreeSet<>(new ColorMapComparator());
-    for (MappedBlock mappedBlock : mappedBlocks) {
-      // TODO: ensure that high valued reds are assigned the first position in the map
-      newColorSet.add(new HsbColor(mappedBlock.getBlock().getAverageRgb()));
+  public void calibrate(String[] hueValues) {
+    if (hueValues.length != colorMap.size()) {
+      throw new IllegalArgumentException("Cannot calibrate color map: expected " + colorMap.size() + " hue values, found " + hueValues.length + " hue values");
     }
-    if (newColorSet.size() != colorMap.size()) {
-      System.err.println("Cannot calibrate color map: expected " + colorMap.size() + " item(s), found " + newColorSet.size() + " item(s)");
-    } else {
-      TreeMap<HsbColor, Composable> newColorMap = new TreeMap<>(new ColorMapComparator());
-      Iterator<HsbColor> newColorSetIterator = newColorSet.iterator();
-      Iterator<Entry<HsbColor, Composable>> oldColorMapIterator = colorMap.entrySet().iterator();
-      while (newColorSetIterator.hasNext() && oldColorMapIterator.hasNext()) {
-        HsbColor newColor = newColorSetIterator.next();
-        float hue = newColor.getHue() + 0.02f; // so new color is less than ceiling entry
-        HsbColor adjustedColor = new HsbColor(hue, newColor.getSaturation(), newColor.getBrightness());
-        Entry<HsbColor, Composable> oldColorMapEntry = oldColorMapIterator.next();
-        newColorMap.put(adjustedColor, oldColorMapEntry.getValue());
-      }
-      colorMap = newColorMap;
+    int hueIndex = 0;
+    TreeMap<HsbColor, Composable> newColorMap = new TreeMap<>(new ColorMapComparator());
+    for (Entry<HsbColor, Composable> entry : colorMap.entrySet()) {
+      String hue = hueValues[hueIndex++];
+      HsbColor newColor = new HsbColor(entry.getKey().getName(), Float.parseFloat(hue));
+      newColorMap.put(newColor, entry.getValue());
     }
-
+    colorMap = newColorMap;
   }
 
   @Override

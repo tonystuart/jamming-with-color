@@ -20,7 +20,7 @@ import javax.sound.midi.Sequence;
 import javax.sound.midi.Sequencer;
 
 import com.example.afs.jamming.command.Command;
-import com.example.afs.jamming.command.Command.Event;
+import com.example.afs.jamming.command.Command.Type;
 import com.sun.media.sound.MidiUtils;
 
 // Note that sequencer.addMetaEventListener MidiUtils.isMetaEndOfTrack only detects end of track if not looping
@@ -80,7 +80,7 @@ public class Player {
   }
 
   private void pushEndOfTrackCommand() {
-    queue.add(new Command(Event.END_OF_TRACK));
+    queue.add(new Command(Type.END_OF_TRACK));
   }
 
 }

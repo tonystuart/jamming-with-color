@@ -16,7 +16,7 @@ import com.example.afs.jamming.command.Trace.TraceOption;
 import com.example.afs.jamming.image.ItemFinder.Background;
 import com.example.afs.jamming.sound.Converter.TickOrigin;
 
-public class CommandLineParser {
+public class OptionParser {
 
   public void exitWithUsage(String invalidOption) {
     System.err.println("Unrecognized option: " + invalidOption);

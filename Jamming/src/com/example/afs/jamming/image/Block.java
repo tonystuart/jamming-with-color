@@ -34,6 +34,16 @@ public class Block {
     return fuzzyEquals;
   }
 
+  public Color getAverageColor() {
+    Color averageColor;
+    if (color instanceof HsbColor) {
+      averageColor = new HsbColor(averageRgb);
+    } else {
+      averageColor = new Color(averageRgb);
+    }
+    return averageColor;
+  }
+
   public int getAverageRgb() {
     return averageRgb;
   }

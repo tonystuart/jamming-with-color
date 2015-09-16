@@ -39,8 +39,7 @@ public class Converter {
     this.midiChannel = midiChannel;
     this.midiProgram = midiProgram;
     if (options.getTrace().isSet(TraceOption.CONVERSION)) {
-      System.out.println("midiChannel " + midiChannel);
-      System.out.println("midiProgram " + midiProgram);
+      System.out.println("midiChannel=" + midiChannel + ", midiProgram=" + midiProgram);
     }
   }
 
