@@ -164,10 +164,17 @@ public class Scene {
       }
     });
     mappedWidth = rowMapper.getMappedWidth();
-    if (options.getTrace().isSet(TraceOption.MAPPING)) {
-      displayInfo("After row mapping, there are " + blocks.size() + " block(s) present", getMappedBlocks());
+    if (options.getTrace().isSet(TraceOption.SCENE)) {
+      displayInfo("The scene contains " + blocks.size() + " block(s)", getMappedBlocks());
     }
-
+    if (options.getTrace().isSet(TraceOption.MAPPING)) {
+      System.out.println("The scene contains the following color mapping(s)");
+      for (MappedBlock mappedBlock : getMappedBlocks()) {
+        Color averageColor = mappedBlock.getBlock().getAverageColor();
+        Color matchingColor = mappedBlock.getBlock().getColor();
+        Composable composable = mappedBlock.getBlock().getComposable();
+        System.out.println(averageColor + " " + matchingColor + " " + composable);
+      }
+    }
   }
-
 }
