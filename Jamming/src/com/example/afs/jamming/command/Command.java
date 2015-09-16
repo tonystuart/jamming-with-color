@@ -9,24 +9,70 @@
 
 package com.example.afs.jamming.command;
 
+import java.util.Arrays;
+
 public class Command {
-  public enum Event {
-    CALIBRATE, CHANNEL, END_OF_TRACK, LOOP, MAP, NEXT, PAUSE, PROGRAM, QUIT, RESUME, TEMPO
+
+  public enum Type {
+    END_OF_TRACK, MONITOR
   }
 
-  private Event event;
+  private String[] tokens;
+  private Type type;
 
-  public Command(Event event) {
-    this.event = event;
+  public Command(String[] tokens) {
+    this(Type.MONITOR);
+    this.tokens = tokens;
   }
 
-  public Event getEvent() {
-    return event;
+  public Command(Type type) {
+    this.type = type;
+  }
+
+  public String[] getOperands() {
+    String[] operands = new String[tokens.length - 1];
+    System.arraycopy(tokens, 1, operands, 0, tokens.length - 1);
+    return operands;
+  }
+
+  public String getToken(int index) {
+    return tokens[index];
+  }
+
+  public String[] getTokens() {
+    return tokens;
+  }
+
+  public boolean isType(Type type) {
+    return this.type == type;
+  }
+
+  public boolean matches(String name) {
+    if (type == Type.MONITOR) {
+      int minimumLength = getMinimumLength(name);
+      int commandLength = tokens[0].length();
+      if (commandLength >= minimumLength && commandLength <= name.length()) {
+        int compareLength = Math.min(name.length(), commandLength);
+        if (tokens[0].equalsIgnoreCase(name.substring(0, compareLength))) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   @Override
   public String toString() {
-    return "Command [event=" + event + "]";
+    return "Command [type=" + type + ", tokens=" + Arrays.toString(tokens) + "]";
+  }
+
+  private int getMinimumLength(String name) {
+    int index = 0;
+    int length = name.length();
+    while (index < length && Character.isUpperCase(name.charAt(index))) {
+      index++;
+    }
+    return index;
   }
 
 }

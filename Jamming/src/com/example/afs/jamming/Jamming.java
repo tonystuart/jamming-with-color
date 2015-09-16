@@ -19,11 +19,9 @@ import javax.imageio.ImageIO;
 import javax.sound.midi.Sequence;
 
 import com.example.afs.jamming.command.Command;
-import com.example.afs.jamming.command.CommandLineParser;
-import com.example.afs.jamming.command.MidiChannelCommand;
-import com.example.afs.jamming.command.MidiProgramCommand;
-import com.example.afs.jamming.command.MidiTempoFactorCommand;
+import com.example.afs.jamming.command.Command.Type;
 import com.example.afs.jamming.command.Monitor;
+import com.example.afs.jamming.command.OptionParser;
 import com.example.afs.jamming.command.Options;
 import com.example.afs.jamming.command.RaspistillWatcher;
 import com.example.afs.jamming.command.Trace.TraceOption;
@@ -37,7 +35,7 @@ import com.example.afs.jamming.sound.Player;
 public class Jamming {
 
   public static void main(String[] args) {
-    CommandLineParser parser = new CommandLineParser();
+    OptionParser parser = new OptionParser();
     Options options = parser.parseOptions(args);
     Jamming jamming = new Jamming(options);
     jamming.jam();
@@ -46,6 +44,8 @@ public class Jamming {
 
   private ImageViewer afterImageViewer;
   private ImageViewer beforeImageViewer;
+  private boolean isPlaying;
+  private boolean isRunning;
   private int loopCount;
   private int midiChannel;
   private int midiProgram;
@@ -53,9 +53,9 @@ public class Jamming {
   private float midiTempoFactor;
   private Monitor monitor;
   private Options options;
+
   private Player player;
   private Frame previousFrame;
-
   private BlockingQueue<Command> queue;
   private RaspistillWatcher raspistillWatcher;
 
@@ -77,56 +77,12 @@ public class Jamming {
   }
 
   public void jam() {
-    boolean isRunning = true;
-    boolean isPlaying = true;
+    isRunning = true;
+    isPlaying = true;
     processFrame();
     while (isRunning) {
       Command command = getNextCommand();
-      switch (command.getEvent()) {
-        case CALIBRATE:
-          calibrate();
-          break;
-        case CHANNEL:
-          midiChannel = ((MidiChannelCommand) command).getMidiChannel();
-          break;
-        case END_OF_TRACK:
-          if (isPlaying) {
-            processFrame();
-          }
-          break;
-        case LOOP:
-          midiProgramLoop = !midiProgramLoop;
-          break;
-        case MAP:
-          displayColorMap();
-          break;
-        case NEXT:
-          player.stop();
-          processFrame();
-          break;
-        case PAUSE:
-          isPlaying = false;
-          player.stop();
-          break;
-        case PROGRAM:
-          midiProgram = ((MidiProgramCommand) command).getMidiProgram();
-          break;
-        case QUIT:
-          isRunning = false;
-          player.close();
-          break;
-        case RESUME:
-          isPlaying = true;
-          player.stop();
-          processFrame();
-          break;
-        case TEMPO:
-          midiTempoFactor = ((MidiTempoFactorCommand) command).getMidiTempoFactor();
-          player.setTempoFactor(midiTempoFactor);
-          break;
-        default:
-          throw new UnsupportedOperationException(command.toString());
-      }
+      processCommand(command);
     };
   }
 
@@ -135,9 +91,17 @@ public class Jamming {
     System.out.println(options.getColorMap());
   }
 
-  private void calibrate() {
-    processFrame();
-    options.getColorMap().calibrate(previousFrame.getScene().getMappedBlocks());
+  private void displayHelp() {
+    System.out.println("Calibrate <v>... - calibrate color map");
+    System.out.println("Channel <i>      - select midi channel <i> (zero based)");
+    System.out.println("Loop             - toggle loop through midi programs");
+    System.out.println("Map              - display current color map");
+    System.out.println("Next             - stop current frame and play next");
+    System.out.println("Pause            - pause play until resume");
+    System.out.println("Program <i>      - select midi program <i>");
+    System.out.println("Quit             - terminate program");
+    System.out.println("Resume           - reset and/or resume play");
+    System.out.println("Tempo <f>        - set midi tempo to <f>");
   }
 
   private BufferedImage getImage(String fileName, int loopCount) {
@@ -176,7 +140,58 @@ public class Jamming {
         Converter converter = new Converter(options, frame.getMidiChannel(), frame.getMidiProgram());
         Sequence sequence = converter.convert(scene);
         player.play(sequence);
+      } else {
+        try {
+          Thread.sleep(1000);
+          queue.add(new Command(Type.END_OF_TRACK));
+        } catch (InterruptedException e) {
+          throw new RuntimeException(e);
+        }
       }
+    }
+  }
+
+  private void processCommand(Command command) {
+    try {
+      if (command.isType(Type.END_OF_TRACK)) {
+        if (isPlaying) {
+          processFrame();
+        }
+      } else if (command.matches("CAlibrate")) {
+        options.getColorMap().calibrate(command.getOperands());
+      } else if (command.matches("CHannel")) {
+        midiChannel = Integer.parseInt(command.getToken(1));
+      } else if (command.matches("Help")) {
+        displayHelp();
+      } else if (command.matches("Loop")) {
+        midiProgramLoop = !midiProgramLoop;
+      } else if (command.matches("Map")) {
+        displayColorMap();
+      } else if (command.matches("Next")) {
+        player.stop();
+        processFrame();
+      } else if (command.matches("PAuse")) {
+        isPlaying = false;
+        player.stop();
+      } else if (command.matches("PRogram")) {
+        midiProgram = Integer.parseInt(command.getToken(1));
+      } else if (command.matches("Quit")) {
+        isRunning = false;
+        player.close();
+      } else if (command.matches("Resume")) {
+        isPlaying = true;
+        player.stop();
+        processFrame();
+      } else if (command.matches("Tempo")) {
+        midiTempoFactor = Float.parseFloat(command.getToken(1));
+        player.setTempoFactor(midiTempoFactor);
+      } else {
+        throw new UnsupportedOperationException(command.toString());
+      }
+    } catch (RuntimeException e) {
+      System.err.println("An exception occurred while processing the command");
+      System.err.println(e);
+      System.err.println("Enter help for a complete list of commands");
     }
   }
 
