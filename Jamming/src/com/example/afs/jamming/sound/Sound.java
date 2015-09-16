@@ -9,7 +9,7 @@
 
 package com.example.afs.jamming.sound;
 
-public class Sound implements Composable {
+public class Sound extends MarkerComposable {
 
   private String name;
   private int value;

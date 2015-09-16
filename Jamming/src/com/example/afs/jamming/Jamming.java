@@ -29,7 +29,9 @@ import com.example.afs.jamming.image.Frame;
 import com.example.afs.jamming.image.ImageViewer;
 import com.example.afs.jamming.image.ImageViewer.Availability;
 import com.example.afs.jamming.image.Scene;
+import com.example.afs.jamming.rowmapper.MappedBlock;
 import com.example.afs.jamming.sound.Converter;
+import com.example.afs.jamming.sound.MarkerComposable;
 import com.example.afs.jamming.sound.Player;
 
 public class Jamming {
@@ -44,6 +46,7 @@ public class Jamming {
 
   private ImageViewer afterImageViewer;
   private ImageViewer beforeImageViewer;
+  private Frame currentFrame;
   private boolean isPlaying;
   private boolean isRunning;
   private int loopCount;
@@ -52,10 +55,9 @@ public class Jamming {
   private boolean midiProgramLoop;
   private float midiTempoFactor;
   private Monitor monitor;
-  private Options options;
 
+  private Options options;
   private Player player;
-  private Frame previousFrame;
   private BlockingQueue<Command> queue;
   private RaspistillWatcher raspistillWatcher;
 
@@ -153,7 +155,9 @@ public class Jamming {
 
   private void processCommand(Command command) {
     try {
-      if (command.isType(Type.END_OF_TRACK)) {
+      if (command.isType(Type.MARKER)) {
+        processMarker(command.getCommand());
+      } else if (command.isType(Type.END_OF_TRACK)) {
         if (isPlaying) {
           processFrame();
         }
@@ -201,18 +205,29 @@ public class Jamming {
     if (options.isDisplayImage()) {
       beforeImageViewer.display(image, "Before " + loopCount, Availability.TRANSIENT);
     }
+    afterImageViewer.clearHighlights();
     Scene scene = new Scene(options, image);
-    Frame currentFrame = new Frame(scene, midiChannel, getMidiProgram());
-    if (currentFrame.isDifferentFrom(previousFrame)) {
+    Frame nextFrame = new Frame(scene, midiChannel, getMidiProgram());
+    if (nextFrame.isDifferentFrom(currentFrame)) {
       if (options.isDisplayImage()) {
         afterImageViewer.display(image, "After " + loopCount, Availability.PERSISTENT);
       }
-      play(currentFrame);
-      previousFrame = currentFrame;
-    } else {
-      play(previousFrame);
+      currentFrame = nextFrame;
     }
+    play(currentFrame);
     loopCount++;
+  }
+
+  private void processMarker(String marker) {
+    if (marker.startsWith(MarkerComposable.MARKER_BEGIN)) {
+      int blockIndex = Integer.parseInt(marker.substring(MarkerComposable.MARKER_BEGIN.length()));
+      MappedBlock mappedBlock = currentFrame.getScene().getMappedBlocks()[blockIndex];
+      afterImageViewer.addHighlight(blockIndex, mappedBlock);
+    } else if (marker.startsWith(MarkerComposable.MARKER_END)) {
+      int blockIndex = Integer.parseInt(marker.substring(MarkerComposable.MARKER_END.length()));
+      MappedBlock mappedBlock = currentFrame.getScene().getMappedBlocks()[blockIndex];
+      afterImageViewer.removeHighlight(blockIndex, mappedBlock);
+    }
   }
 
 }

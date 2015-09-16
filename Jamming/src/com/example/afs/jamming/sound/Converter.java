@@ -48,7 +48,9 @@ public class Converter {
       Sequence sequence = new Sequence(Sequence.PPQ, TICKS_PER_BEAT);
       TrackBuilder trackBuilder = new TrackBuilder(sequence.createTrack());
       trackBuilder.addShortMessage(0, midiChannel, ShortMessage.PROGRAM_CHANGE, midiProgram, 0);
-      for (MappedBlock mappedBlock : scene.getMappedBlocks()) {
+      MappedBlock[] mappedBlocks = scene.getMappedBlocks();
+      for (int blockIndex = 0; blockIndex < mappedBlocks.length; blockIndex++) {
+        MappedBlock mappedBlock = mappedBlocks[blockIndex];
         int left = mappedBlock.getLeft();
         int right = mappedBlock.getRight();
         int duration;
@@ -66,7 +68,11 @@ public class Converter {
             throw new UnsupportedOperationException();
         }
         int velocity = scaleVelocity(scene.getMaximumItemHeight(), mappedBlock.getBlock().getItem().getHeight());
-        mappedBlock.getBlock().getComposable().addToTrack(trackBuilder, tick, midiChannel, velocity, duration);
+        if (options.getTrace().isSet(TraceOption.MARKER)) {
+          mappedBlock.getBlock().getComposable().addToTrack(trackBuilder, tick, midiChannel, velocity, duration, blockIndex);
+        } else {
+          mappedBlock.getBlock().getComposable().addToTrack(trackBuilder, tick, midiChannel, velocity, duration);
+        }
       }
       int lastTick = scene.getMappedWidth();
       trackBuilder.addMetaMessage(lastTick, midiChannel, MidiUtils.META_END_OF_TRACK_TYPE, null, 0);

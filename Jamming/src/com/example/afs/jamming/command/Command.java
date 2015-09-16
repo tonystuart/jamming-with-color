@@ -14,9 +14,10 @@ import java.util.Arrays;
 public class Command {
 
   public enum Type {
-    END_OF_TRACK, MONITOR
+    END_OF_TRACK, MARKER, MONITOR
   }
 
+  private String command;
   private String[] tokens;
   private Type type;
 
@@ -29,9 +30,23 @@ public class Command {
     this.type = type;
   }
 
+  public Command(Type type, String command) {
+    this.type = type;
+    this.command = command;
+  }
+
+  public String getCommand() {
+    return command;
+  }
+
   public String[] getOperands() {
-    String[] operands = new String[tokens.length - 1];
-    System.arraycopy(tokens, 1, operands, 0, tokens.length - 1);
+    String[] operands;
+    if (tokens == null) {
+      operands = null;
+    } else {
+      operands = new String[tokens.length - 1];
+      System.arraycopy(tokens, 1, operands, 0, tokens.length - 1);
+    }
     return operands;
   }
 
