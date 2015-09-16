@@ -15,15 +15,23 @@ public class HsbColor extends Color {
 
   private float[] hsbValues = new float[3];
 
-  public HsbColor(float hue, float saturation, float brightness) {
-    super(java.awt.Color.HSBtoRGB(hue, saturation, brightness) & 0xffffff); // mask off alpha channel
-    hsbValues[0] = hue;
-    hsbValues[1] = saturation;
-    hsbValues[2] = brightness;
+  public HsbColor(float hue) {
+    this(null, hue, 1f, 1f);
   }
 
   public HsbColor(int rgb) {
     this(null, rgb);
+  }
+
+  public HsbColor(String name, float hue) {
+    this(name, hue, 1f, 1f);
+  }
+
+  public HsbColor(String name, float hue, float saturation, float brightness) {
+    super(name, java.awt.Color.HSBtoRGB(hue, saturation, brightness) & 0xffffff); // mask off alpha channel
+    hsbValues[0] = hue;
+    hsbValues[1] = saturation;
+    hsbValues[2] = brightness;
   }
 
   public HsbColor(String name, int rgb) {

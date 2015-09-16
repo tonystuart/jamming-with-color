@@ -12,12 +12,11 @@ package com.example.afs.jamming.color.base;
 import java.util.Map.Entry;
 
 import com.example.afs.jamming.color.rgb.Color;
-import com.example.afs.jamming.rowmapper.MappedBlock;
 import com.example.afs.jamming.sound.Composable;
 
 public interface ColorMap {
 
-  void calibrate(Iterable<MappedBlock> mappedBlocks);
+  void calibrate(String[] colors);
 
   Entry<? extends Color, ? extends Composable> findClosestEntry(int colorValue);
 
