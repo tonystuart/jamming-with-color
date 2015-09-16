@@ -31,8 +31,8 @@ import com.sun.media.sound.MidiUtils;
 public class Player {
 
   private class PlayerMetaEventListener implements MetaEventListener {
-    public void meta(MetaMessage event) {
-      onMetaMessage(event);
+    public void meta(MetaMessage metaMessage) {
+      onMetaMessage(metaMessage);
     }
   }
 
@@ -73,14 +73,22 @@ public class Player {
     sequencer.stop();
   }
 
-  private void onMetaMessage(MetaMessage event) {
-    if (event.getType() == MidiUtils.META_END_OF_TRACK_TYPE) {
+  private void onMetaMessage(MetaMessage metaMessage) {
+    if (metaMessage.getType() == MarkerComposable.MARKER) {
+      pushMarkerCommand(metaMessage);
+    } else if (metaMessage.getType() == MidiUtils.META_END_OF_TRACK_TYPE) {
       pushEndOfTrackCommand();
     }
   }
 
   private void pushEndOfTrackCommand() {
     queue.add(new Command(Type.END_OF_TRACK));
+  }
+
+  private void pushMarkerCommand(MetaMessage metaMessage) {
+    byte[] data = metaMessage.getData();
+    String markerMessage = new String(data);
+    queue.add(new Command(Type.MARKER, markerMessage));
   }
 
 }

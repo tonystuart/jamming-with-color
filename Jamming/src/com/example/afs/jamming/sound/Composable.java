@@ -13,6 +13,8 @@ public interface Composable {
 
   void addToTrack(TrackBuilder trackBuilder, long tick, int channel, int velocity, int duration);
 
+  void addToTrack(TrackBuilder trackBuilder, long tick, int midiChannel, int velocity, int duration, int blockIndex);
+
   String getName();
 
 }

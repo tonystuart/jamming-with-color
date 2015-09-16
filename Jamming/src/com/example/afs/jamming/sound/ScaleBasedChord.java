@@ -11,7 +11,7 @@ package com.example.afs.jamming.sound;
 
 import java.util.Arrays;
 
-public class ScaleBasedChord implements Composable {
+public class ScaleBasedChord extends MarkerComposable {
 
   private int[] intervals;
   private String name;

@@ -53,8 +53,8 @@ public class Scene {
     return blocks;
   }
 
-  public Iterable<MappedBlock> getMappedBlocks() {
-    return new IterableArray<MappedBlock>(mappedBlocks);
+  public MappedBlock[] getMappedBlocks() {
+    return mappedBlocks;
   }
 
   public int getMappedWidth() {
@@ -165,7 +165,7 @@ public class Scene {
     });
     mappedWidth = rowMapper.getMappedWidth();
     if (options.getTrace().isSet(TraceOption.SCENE)) {
-      displayInfo("The scene contains " + blocks.size() + " block(s)", getMappedBlocks());
+      displayInfo("The scene contains " + blocks.size() + " block(s)", new IterableArray<MappedBlock>(mappedBlocks));
     }
     if (options.getTrace().isSet(TraceOption.MAPPING)) {
       System.out.println("The scene contains the following color mapping(s)");
