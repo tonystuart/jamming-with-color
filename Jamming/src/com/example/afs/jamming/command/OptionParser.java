@@ -128,7 +128,7 @@ public class OptionParser {
     System.exit(1);
   }
 
-  private String getOptions(Class<? extends Enum<?>> enumClass) {
+  public static String getOptions(Class<? extends Enum<?>> enumClass) {
     StringBuilder s = new StringBuilder();
     for (Enum<?> option : enumClass.getEnumConstants()) {
       if (s.length() > 0) {

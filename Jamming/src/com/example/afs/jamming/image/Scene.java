@@ -169,12 +169,13 @@ public class Scene {
     }
     if (options.getTrace().isSet(TraceOption.MAPPING)) {
       System.out.println("The scene contains the following color mapping(s)");
-      for (MappedBlock mappedBlock : getMappedBlocks()) {
+      for (int i = 0; i < mappedBlocks.length; i++) {
+        MappedBlock mappedBlock = mappedBlocks[i];
         int row = mappedBlock.getRow();
         Color averageColor = mappedBlock.getBlock().getAverageColor();
         Color matchingColor = mappedBlock.getBlock().getColor();
         Composable composable = mappedBlock.getBlock().getComposable();
-        System.out.println(row + ": " + averageColor + " " + matchingColor + " " + composable);
+        System.out.println((i + 1) + " - " + row + ": " + averageColor + " " + matchingColor + " " + composable);
       }
     }
   }
