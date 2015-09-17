@@ -14,7 +14,7 @@ import java.util.EnumSet;
 public class Trace {
 
   public enum TraceOption {
-    COMPARISON, CONVERSION, DESPECKLING, INPUT, MAPPING, MARKER, OUTPUT, PERFORMANCE, SCENE, SOUND
+    COMPARISON, CONVERSION, DESPECKLING, INPUT, MAPPING, MARKER, OUTPUT, PERFORMANCE, SCENE
   }
 
   private EnumSet<TraceOption> traceOptions = EnumSet.noneOf(TraceOption.class);

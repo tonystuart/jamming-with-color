@@ -94,16 +94,19 @@ public class Jamming {
   }
 
   private void displayHelp() {
-    System.out.println("Calibrate <v>... - calibrate color map");
-    System.out.println("Channel <i>      - select midi channel <i> (zero based)");
-    System.out.println("Loop             - toggle loop through midi programs");
-    System.out.println("Map              - display current color map");
-    System.out.println("Next             - stop current frame and play next");
-    System.out.println("Pause            - pause play until resume");
-    System.out.println("Program <i>      - select midi program <i>");
-    System.out.println("Quit             - terminate program");
-    System.out.println("Resume           - reset and/or resume play");
-    System.out.println("Tempo <f>        - set midi tempo to <f>");
+    System.out.println("Calibrate map - calibrate color map");
+    System.out.println("Channel n     - select midi channel n (zero based)");
+    System.out.println("Loop          - toggle loop through midi programs");
+    System.out.println("Map           - display current color map");
+    System.out.println("Next          - stop current frame and play next");
+    System.out.println("Pause         - pause play until resume");
+    System.out.println("Program n     - select midi program n");
+    System.out.println("Quit          - terminate program");
+    System.out.println("Resume        - reset and/or resume play");
+    System.out.println("Tempo f       - set midi tempo to f");
+    System.out.println("Tron t        - set trace option t on");
+    System.out.println("Troff t       - set trace option t off");
+    System.out.println("Where t is one of "+OptionParser.getOptions(TraceOption.class));
   }
 
   private BufferedImage getImage(String fileName, int loopCount) {
@@ -188,6 +191,12 @@ public class Jamming {
         processFrame();
       } else if (command.matches("Tempo")) {
         midiTempoFactor = Float.parseFloat(command.getToken(1));
+        player.setTempoFactor(midiTempoFactor);
+      } else if (command.matches("TROFF")) {
+        options.getTrace().clear(TraceOption.valueOf(command.getToken(1).toUpperCase()));
+        player.setTempoFactor(midiTempoFactor);
+      } else if (command.matches("TRON")) {
+        options.getTrace().set(TraceOption.valueOf(command.getToken(1).toUpperCase()));
         player.setTempoFactor(midiTempoFactor);
       } else {
         throw new UnsupportedOperationException(command.toString());
