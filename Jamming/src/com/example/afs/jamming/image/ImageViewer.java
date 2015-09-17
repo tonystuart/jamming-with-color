@@ -44,16 +44,20 @@ public class ImageViewer extends JFrame {
         for (Entry<String, MappedBlock> entry : highlights.entrySet()) {
           String value = entry.getKey();
           MappedBlock mappedBlock = entry.getValue();
-          int x = mappedBlock.getBlock().getItem().getLeft();
-          int y = mappedBlock.getBlock().getItem().getTop();
+          int left = mappedBlock.getBlock().getItem().getLeft();
+          int top = mappedBlock.getBlock().getItem().getTop();
+          int width = mappedBlock.getBlock().getItem().getWidth();
+          int height = mappedBlock.getBlock().getItem().getHeight();
           FontMetrics metrics = g.getFontMetrics();
-          int width = metrics.stringWidth(value) + 6;
-          int height = metrics.getHeight() + 6;
+          int markerWidth = metrics.stringWidth(value) + 6;
+          int markerHeight = metrics.getHeight() + 6;
+          int x = left + ((width - markerWidth) / 2);
+          int y = top + ((height - markerHeight) / 2);
           g.setColor(Color.WHITE);
           // https://bugs.openjdk.java.net/browse/JDK-4080020
-          g.fillRect(x, y, width, height);
+          g.fillRect(x, y, markerWidth, markerHeight);
           g.setColor(Color.BLACK);
-          g.drawString(value, x + 3, y + height - 5);
+          g.drawString(value, x + 3, y + markerHeight - 5);
         }
       }
     }
