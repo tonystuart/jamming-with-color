@@ -9,14 +9,16 @@
 
 package com.example.afs.jamming.color.base;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.example.afs.jamming.color.hsb.Chord7ColorArpeggiatedHsbColorMap;
 import com.example.afs.jamming.color.hsb.Chord7ColorHsbColorMap;
 import com.example.afs.jamming.color.hsb.DrumHsbColorMap;
 import com.example.afs.jamming.color.hsb.Note1OctaveLowHsbColorMap;
 import com.example.afs.jamming.color.hsb.Note2OctaveHsbColorMap;
 import com.example.afs.jamming.color.hsb.Note4OctaveHsbColorMap;
+import com.example.afs.jamming.color.hsb.TechnoMultiColorHsbColorMap;
 import com.example.afs.jamming.color.rgb.Chord7ColorRgbColorMap;
 import com.example.afs.jamming.color.rgb.DrumRgbColorMap;
 
@@ -28,10 +30,11 @@ public final class ColorMaps {
     return instance;
   }
 
-  private Map<String, ColorMap> colorMaps = new HashMap<>();
+  private Map<String, ColorMap> colorMaps = new LinkedHashMap<>();
 
   public ColorMaps() {
     // http://www.javaworld.com/article/2077477/learn-java/java-tip-113--identify-subclasses-at-runtime.html
+    register(new Chord7ColorArpeggiatedHsbColorMap());
     register(new Chord7ColorHsbColorMap());
     register(new Chord7ColorRgbColorMap());
     register(new DrumHsbColorMap());
@@ -39,6 +42,7 @@ public final class ColorMaps {
     register(new Note1OctaveLowHsbColorMap());
     register(new Note2OctaveHsbColorMap());
     register(new Note4OctaveHsbColorMap());
+    register(new TechnoMultiColorHsbColorMap());
   }
 
   public ColorMap get(String name) {
@@ -55,6 +59,18 @@ public final class ColorMaps {
 
   public void put(String name, ColorMap colorMap) {
     colorMaps.put(name, colorMap);
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder s = new StringBuilder();
+    for (String name : colorMaps.keySet()) {
+      if (s.length() > 0) {
+        s.append("\n");
+      }
+      s.append(name);
+    }
+    return s.toString();
   }
 
   private void register(ColorMap colorMap) {

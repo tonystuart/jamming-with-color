@@ -34,6 +34,7 @@ public class Options {
   private boolean isDisplayImage = true;
   private boolean isMidiProgramLoop = false;
   private boolean isPlayAudio = true;
+  private boolean isProcessImage = true;
   private boolean isVerbose = false;
   private int midiBaseVelocity = Converter.MAXIMUM_VELOCITY / 2;
   private int midiChannel = 0;
@@ -150,6 +151,10 @@ public class Options {
     return isPlayAudio;
   }
 
+  public boolean isProcessImage() {
+    return isProcessImage;
+  }
+
   public boolean isVerbose() {
     return isVerbose;
   }
@@ -236,6 +241,10 @@ public class Options {
 
   public void setPlayAudio(boolean isAudio) {
     this.isPlayAudio = isAudio;
+  }
+
+  public void setProcessImage(boolean isProcessImage) {
+    this.isProcessImage = isProcessImage;
   }
 
   public void setRowSpacing(int rowSpacing) {
