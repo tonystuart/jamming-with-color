@@ -18,6 +18,17 @@ import com.example.afs.jamming.sound.Converter.TickOrigin;
 
 public class OptionParser {
 
+  public static String getOptions(Class<? extends Enum<?>> enumClass) {
+    StringBuilder s = new StringBuilder();
+    for (Enum<?> option : enumClass.getEnumConstants()) {
+      if (s.length() > 0) {
+        s.append("|");
+      }
+      s.append(option.name());
+    }
+    return s.toString();
+  }
+
   public void exitWithUsage(String invalidOption) {
     System.err.println("Unrecognized option: " + invalidOption);
     exitWithUsage();
@@ -57,6 +68,8 @@ public class OptionParser {
             options.setDisplayImage(Boolean.valueOf(tokens[1]));
           } else if (tokens.length == 2 && tokens[0].equals("--isPlayAudio")) {
             options.setPlayAudio(Boolean.valueOf(tokens[1]));
+          } else if (tokens.length == 2 && tokens[0].equals("--isProcessImage")) {
+            options.setProcessImage(Boolean.valueOf(tokens[1]));
           } else if (tokens.length == 2 && tokens[0].equals("--isVerbose")) {
             setVerbose(options, Boolean.valueOf(tokens[1]));
           } else if (tokens.length == 2 && tokens[0].equals("--midiBaseVelocity")) {
@@ -110,6 +123,7 @@ public class OptionParser {
     System.err.println("       --imageWidth=0-2592 pixels (defaults to " + options.getImageWidth() + ")");
     System.err.println("       --isDisplayImage=false|true (defaults to " + options.isDisplayImage() + ")");
     System.err.println("       --isPlayAudio=false|true (defaults to " + options.isPlayAudio() + ")");
+    System.err.println("       --isProcessImage=false|true (defaults to " + options.isProcessImage() + ")");
     System.err.println("       --isVerbose=false|true (defaults to " + options.isVerbose() + ", clears/sets all trace flags)");
     System.err.println("       --midiBaseVelocity=1-127 (defaults to " + options.getMidiBaseVelocity() + ", audio volume, lower numbers permit greater dynamic range)");
     System.err.println("       --midiChannel=channel (defaults to " + options.getMidiChannel() + ")");
@@ -126,17 +140,6 @@ public class OptionParser {
       System.err.println("       " + name);
     }
     System.exit(1);
-  }
-
-  public static String getOptions(Class<? extends Enum<?>> enumClass) {
-    StringBuilder s = new StringBuilder();
-    for (Enum<?> option : enumClass.getEnumConstants()) {
-      if (s.length() > 0) {
-        s.append("|");
-      }
-      s.append(option.name());
-    }
-    return s.toString();
   }
 
   private void setVerbose(Options options, Boolean isVerbose) {

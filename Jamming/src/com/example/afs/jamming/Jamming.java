@@ -18,6 +18,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import javax.imageio.ImageIO;
 import javax.sound.midi.Sequence;
 
+import com.example.afs.jamming.color.base.ColorMaps;
 import com.example.afs.jamming.command.Command;
 import com.example.afs.jamming.command.Command.Type;
 import com.example.afs.jamming.command.Monitor;
@@ -88,25 +89,27 @@ public class Jamming {
     };
   }
 
-  private void displayColorMap() {
-    System.out.println("Current color map");
-    System.out.println(options.getColorMap());
-  }
-
   private void displayHelp() {
-    System.out.println("Calibrate map - calibrate color map");
-    System.out.println("Channel n     - select midi channel n (zero based)");
-    System.out.println("Loop          - toggle loop through midi programs");
-    System.out.println("Map           - display current color map");
-    System.out.println("Next          - stop current frame and play next");
-    System.out.println("Pause         - pause play until resume");
-    System.out.println("Program n     - select midi program n");
-    System.out.println("Quit          - terminate program");
-    System.out.println("Resume        - reset and/or resume play");
-    System.out.println("Tempo f       - set midi tempo to f");
-    System.out.println("Tron t        - set trace option t on");
-    System.out.println("Troff t       - set trace option t off");
-    System.out.println("Where t is one of "+OptionParser.getOptions(TraceOption.class));
+    System.out.println("Calibrate def - calibrate current color map");
+    System.out.println("Channel n - select midi channel n (zero based)");
+    System.out.println("Image - toggle image processing");
+    System.out.println("Loop - toggle loop through midi programs");
+    System.out.println("Map [map] - display/set current color map");
+    for (String name : ColorMaps.getSingleton().getNames()) {
+      System.out.println("  " + name);
+    }
+    System.out.println("Next - stop current frame and play next");
+    System.out.println("Pause - pause play until resume");
+    System.out.println("Program n - select midi program n");
+    System.out.println("Quit - terminate program");
+    System.out.println("Resume - reset and/or resume play");
+    System.out.println("Rows - display/set row spacing");
+    System.out.println("Tempo f - set midi tempo to f");
+    System.out.println("Tron t - set trace option t on");
+    for (Enum<?> option : TraceOption.class.getEnumConstants()) {
+      System.out.println("  " + option.name());
+    }
+    System.out.println("Troff t - set trace option t off");
   }
 
   private BufferedImage getImage(String fileName, int loopCount) {
@@ -159,7 +162,7 @@ public class Jamming {
   private void processCommand(Command command) {
     try {
       if (command.isType(Type.MARKER)) {
-        processMarker(command.getCommand());
+        processMarkerEvent(command.getCommand());
       } else if (command.isType(Type.END_OF_TRACK)) {
         if (isPlaying) {
           processFrame();
@@ -170,10 +173,12 @@ public class Jamming {
         midiChannel = Integer.parseInt(command.getToken(1));
       } else if (command.matches("Help")) {
         displayHelp();
+      } else if (command.matches("Image")) {
+        processImageCommand();
       } else if (command.matches("Loop")) {
-        midiProgramLoop = !midiProgramLoop;
+        processMidiLoopCommand();
       } else if (command.matches("Map")) {
-        displayColorMap();
+        processMapCommand(command.getOperands());
       } else if (command.matches("Next")) {
         player.stop();
         processFrame();
@@ -189,6 +194,8 @@ public class Jamming {
         isPlaying = true;
         player.stop();
         processFrame();
+      } else if (command.matches("Rows")) {
+        processRowCommand(command.getOperands());
       } else if (command.matches("Tempo")) {
         midiTempoFactor = Float.parseFloat(command.getToken(1));
         player.setTempoFactor(midiTempoFactor);
@@ -209,25 +216,49 @@ public class Jamming {
   }
 
   private void processFrame() {
-    String filename = raspistillWatcher.takePhoto();
-    BufferedImage image = getImage(filename, loopCount);
-    if (options.isDisplayImage()) {
-      beforeImageViewer.display(image, "Before " + loopCount, Availability.TRANSIENT);
-    }
-    afterImageViewer.clearHighlights();
-    Scene scene = new Scene(options, image);
-    Frame nextFrame = new Frame(scene, midiChannel, getMidiProgram());
-    if (nextFrame.isDifferentFrom(currentFrame)) {
+    if (options.isProcessImage()) {
+      String filename = raspistillWatcher.takePhoto();
+      BufferedImage image = getImage(filename, loopCount);
       if (options.isDisplayImage()) {
-        afterImageViewer.display(image, "After " + loopCount, Availability.PERSISTENT);
+        beforeImageViewer.display(image, "Before " + loopCount, Availability.TRANSIENT);
       }
-      currentFrame = nextFrame;
+      afterImageViewer.clearHighlights();
+      Scene scene = new Scene(options, image);
+      Frame nextFrame = new Frame(scene, midiChannel, getMidiProgram());
+      if (nextFrame.isDifferentFrom(currentFrame)) {
+        if (options.isDisplayImage()) {
+          afterImageViewer.display(image, "After " + loopCount, Availability.PERSISTENT);
+        }
+        currentFrame = nextFrame;
+      }
+    } else {
+      afterImageViewer.clearHighlights();
     }
-    play(currentFrame);
+    if (currentFrame != null) {
+      play(currentFrame);
+    }
     loopCount++;
   }
 
-  private void processMarker(String marker) {
+  private void processImageCommand() {
+    options.setProcessImage(!options.isProcessImage());
+    if (options.isProcessImage()) {
+      System.out.println("Image processing is enabled");
+    } else {
+      System.out.println("Image processing is disabled");
+    }
+  }
+
+  private void processMapCommand(String[] operands) {
+    if (operands.length == 0) {
+      System.out.println("Current color map");
+      System.out.println(options.getColorMap());
+    } else if (operands.length == 1) {
+      options.setColorMap(ColorMaps.getSingleton().get(operands[0]));
+    }
+  }
+
+  private void processMarkerEvent(String marker) {
     if (marker.startsWith(MarkerComposable.MARKER_BEGIN)) {
       int blockIndex = Integer.parseInt(marker.substring(MarkerComposable.MARKER_BEGIN.length()));
       MappedBlock mappedBlock = currentFrame.getScene().getMappedBlocks()[blockIndex];
@@ -236,6 +267,23 @@ public class Jamming {
       int blockIndex = Integer.parseInt(marker.substring(MarkerComposable.MARKER_END.length()));
       MappedBlock mappedBlock = currentFrame.getScene().getMappedBlocks()[blockIndex];
       afterImageViewer.removeHighlight(blockIndex, mappedBlock);
+    }
+  }
+
+  private void processMidiLoopCommand() {
+    midiProgramLoop = !midiProgramLoop;
+    if (midiProgramLoop) {
+      System.out.println("Midi program looping is enabled");
+    } else {
+      System.out.println("Midi program looping is disabled");
+    }
+  }
+
+  private void processRowCommand(String[] operands) {
+    if (operands.length == 0) {
+      System.out.println("Current row spacing is " + options.getRowSpacing());
+    } else if (operands.length == 1) {
+      options.setRowSpacing(Integer.parseInt(operands[0]));
     }
   }
 
