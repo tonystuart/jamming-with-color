@@ -14,8 +14,8 @@ import com.example.afs.jamming.sound.ArpeggiatedChord;
 public class TechnoMultiColorHsbColorMap extends HsbColorMap {
 
   public static final HsbColor blue = new HsbColor("Blue", .70f);
-  public static final HsbColor red = new HsbColor("Red", .10f);
   public static final HsbColor green = new HsbColor("Green", .50f);
+  public static final HsbColor red = new HsbColor("Red", .10f);
   public static final HsbColor yellow = new HsbColor("Yellow", .20f);
 
   // "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"

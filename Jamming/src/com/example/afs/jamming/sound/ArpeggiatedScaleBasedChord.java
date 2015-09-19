@@ -28,6 +28,7 @@ public class ArpeggiatedScaleBasedChord extends MarkerComposable {
     int duration = totalDuration / intervals.length;
     for (int interval : intervals) {
       trackBuilder.addNote(tick, channel, tonic + interval, velocity, duration);
+      tick += duration;
     }
   }
 

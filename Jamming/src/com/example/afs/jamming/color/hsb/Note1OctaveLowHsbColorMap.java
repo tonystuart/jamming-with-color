@@ -13,13 +13,13 @@ import com.example.afs.jamming.sound.Note;
 
 public class Note1OctaveLowHsbColorMap extends HsbColorMap {
 
-  private static final int FIRST = 12;
-  private static final int LAST = 24;
+  private static final int FIRST = 36;
+  private static final int LAST = 48;
 
   public Note1OctaveLowHsbColorMap() {
     int noteCount = LAST - FIRST;
-    int colorRange = 100 / noteCount;
-    int hue = 0;
+    float colorRange = 1f / noteCount;
+    float hue = 0;
     for (int i = FIRST; i < LAST; i++) {
       HsbColor color = new HsbColor(hue);
       Note Note = new Note(i);

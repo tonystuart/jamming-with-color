@@ -14,9 +14,9 @@ import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -63,7 +63,7 @@ public class ImageViewer extends JFrame {
     }
   }
 
-  private Map<String, MappedBlock> highlights = new HashMap<>();
+  private Map<String, MappedBlock> highlights = new ConcurrentHashMap<>();
   private ImagePanel imagePanel;
 
   public ImageViewer() {

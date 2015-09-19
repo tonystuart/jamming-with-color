@@ -9,8 +9,8 @@
 
 package com.example.afs.jamming.color.base;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import com.example.afs.jamming.color.hsb.Chord7ColorArpeggiatedHsbColorMap;
 import com.example.afs.jamming.color.hsb.Chord7ColorHsbColorMap;
@@ -30,7 +30,7 @@ public final class ColorMaps {
     return instance;
   }
 
-  private Map<String, ColorMap> colorMaps = new LinkedHashMap<>();
+  private Map<String, ColorMap> colorMaps = new TreeMap<>();
 
   public ColorMaps() {
     // http://www.javaworld.com/article/2077477/learn-java/java-tip-113--identify-subclasses-at-runtime.html
@@ -53,8 +53,13 @@ public final class ColorMaps {
     return colorMaps.size() == 0 ? null : colorMaps.values().iterator().next();
   }
 
-  public Iterable<String> getNames() {
-    return colorMaps.keySet();
+  public String[] getNames() {
+    int nameIndex = 0;
+    String[] names = new String[colorMaps.size()];
+    for (String name : colorMaps.keySet()) {
+      names[nameIndex++] = name;
+    }
+    return names;
   }
 
   public void put(String name, ColorMap colorMap) {

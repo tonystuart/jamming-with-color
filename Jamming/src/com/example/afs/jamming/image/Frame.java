@@ -9,15 +9,19 @@
 
 package com.example.afs.jamming.image;
 
+import com.example.afs.jamming.color.base.ColorMap;
+
 public class Frame {
   private int midiChannel;
   private int midiProgram;
   private Scene scene;
+  private ColorMap colorMap;
 
-  public Frame(Scene scene, int midiChannel, int midiProgram) {
+  public Frame(Scene scene, int midiChannel, int midiProgram, ColorMap colorMap) {
     this.scene = scene;
     this.midiChannel = midiChannel;
     this.midiProgram = midiProgram;
+    this.colorMap = colorMap;
   }
 
   public int getMidiChannel() {
@@ -33,7 +37,7 @@ public class Frame {
   }
 
   public boolean isDifferentFrom(Frame that) {
-    return that == null || this.midiChannel != that.midiChannel || this.midiProgram != that.midiProgram || this.scene.isDifferentFrom(that.scene);
+    return that == null || this.midiChannel != that.midiChannel || this.midiProgram != that.midiProgram || this.colorMap != that.colorMap || this.scene.isDifferentFrom(that.scene);
   }
 
   @Override
