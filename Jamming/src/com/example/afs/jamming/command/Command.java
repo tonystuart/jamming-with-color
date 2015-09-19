@@ -58,6 +58,10 @@ public class Command {
     return tokens;
   }
 
+  public boolean isEmpty() {
+    return type == Type.MONITOR && tokens[0].isEmpty();
+  }
+
   public boolean isType(Type type) {
     return this.type == type;
   }

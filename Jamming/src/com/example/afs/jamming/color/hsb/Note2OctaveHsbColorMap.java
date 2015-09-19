@@ -18,8 +18,8 @@ public class Note2OctaveHsbColorMap extends HsbColorMap {
 
   public Note2OctaveHsbColorMap() {
     int noteCount = LAST - FIRST;
-    int colorRange = 100 / noteCount;
-    int hue = 0;
+    float colorRange = 1f / noteCount;
+    float hue = 0;
     for (int i = FIRST; i < LAST; i++) {
       HsbColor color = new HsbColor(hue);
       Note Note = new Note(i);

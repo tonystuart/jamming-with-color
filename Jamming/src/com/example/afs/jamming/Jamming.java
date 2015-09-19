@@ -90,26 +90,30 @@ public class Jamming {
   }
 
   private void displayHelp() {
-    System.out.println("Calibrate def - calibrate current color map");
-    System.out.println("Channel n - select midi channel n (zero based)");
-    System.out.println("Image - toggle image processing");
-    System.out.println("Loop - toggle loop through midi programs");
-    System.out.println("Map [map] - display/set current color map");
+    System.out.println("\nConsole monitor commands:");
+    System.out.println("  Calibrate def - calibrate current color map");
+    System.out.println("  Channel n - select midi channel n (zero based)");
+    System.out.println("  Image - toggle image processing");
+    System.out.println("  Loop - toggle loop through midi programs");
+    System.out.println("  Map [map] - display/set current color map");
+    System.out.println("  Next - stop current frame and play next");
+    System.out.println("  Pause - pause play until resume");
+    System.out.println("  Program n - select midi program n");
+    System.out.println("  Quit - terminate program");
+    System.out.println("  Resume - reset and/or resume play");
+    System.out.println("  Rows - display/set row spacing");
+    System.out.println("  Tempo f - set midi tempo to f");
+    System.out.println("  Tron t - set trace option t on");
+    System.out.println("  Troff t - set trace option t off");
+    System.out.println("\nMap options (name or number):");
+    int mapNumber = 1;
     for (String name : ColorMaps.getSingleton().getNames()) {
-      System.out.println("  " + name);
+      System.out.println("  " + (mapNumber++) + " - " + name);
     }
-    System.out.println("Next - stop current frame and play next");
-    System.out.println("Pause - pause play until resume");
-    System.out.println("Program n - select midi program n");
-    System.out.println("Quit - terminate program");
-    System.out.println("Resume - reset and/or resume play");
-    System.out.println("Rows - display/set row spacing");
-    System.out.println("Tempo f - set midi tempo to f");
-    System.out.println("Tron t - set trace option t on");
+    System.out.println("\nTrace options:");
     for (Enum<?> option : TraceOption.class.getEnumConstants()) {
       System.out.println("  " + option.name());
     }
-    System.out.println("Troff t - set trace option t off");
   }
 
   private BufferedImage getImage(String fileName, int loopCount) {
@@ -205,7 +209,7 @@ public class Jamming {
       } else if (command.matches("TRON")) {
         options.getTrace().set(TraceOption.valueOf(command.getToken(1).toUpperCase()));
         player.setTempoFactor(midiTempoFactor);
-      } else {
+      } else if (!command.isEmpty()) {
         throw new UnsupportedOperationException(command.toString());
       }
     } catch (RuntimeException e) {
@@ -224,7 +228,7 @@ public class Jamming {
       }
       afterImageViewer.clearHighlights();
       Scene scene = new Scene(options, image);
-      Frame nextFrame = new Frame(scene, midiChannel, getMidiProgram());
+      Frame nextFrame = new Frame(scene, midiChannel, getMidiProgram(), options.getColorMap());
       if (nextFrame.isDifferentFrom(currentFrame)) {
         if (options.isDisplayImage()) {
           afterImageViewer.display(image, "After " + loopCount, Availability.PERSISTENT);
@@ -254,7 +258,15 @@ public class Jamming {
       System.out.println("Current color map");
       System.out.println(options.getColorMap());
     } else if (operands.length == 1) {
-      options.setColorMap(ColorMaps.getSingleton().get(operands[0]));
+      String mapName;
+      try {
+        int mapNumber = Integer.parseInt(operands[0]);
+        mapName = ColorMaps.getSingleton().getNames()[mapNumber - 1];
+      } catch (NumberFormatException e) {
+        mapName = operands[0];
+      }
+      options.setColorMap(ColorMaps.getSingleton().get(mapName));
+      System.out.println(options.getColorMap());
     }
   }
 
